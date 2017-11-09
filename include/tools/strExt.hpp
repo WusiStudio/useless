@@ -90,7 +90,7 @@ namespace ws
 				{
 					t_result << p_str;
 				}
-				for( int i = 0; i < p_limitLength - t_strLen; ++i )
+				for( unsigned int i = 0; i < p_limitLength - t_strLen; ++i )
 				{
 					t_result << " ";
 				}
@@ -124,7 +124,7 @@ namespace ws
 					t_scaler += t_length;
 				}
 				t_result << p_str.substr( 0, t_scaler );
-				for( int i = t_realLen; i < p_limitLength - t_tail.length(); ++i )
+				for( unsigned int i = t_realLen; i < p_limitLength - t_tail.length(); ++i )
 				{
 					t_result << ".";
 				}
@@ -371,7 +371,15 @@ namespace ws
 				}
 
 				time_t t = (time_t)stampTime;
-				struct tm* date_time = localtime(&t);
+				struct tm* date_time;
+				
+				#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
+				struct tm t_date_time;
+				date_time = &t_date_time;
+				localtime_s(&t_date_time, &t);
+				#elif defined(__linux__) || defined(__unix__)
+				date_time = localtime(&t);
+				#endif
 
 				//输出格式
 				std::string tResult = matchBegin->str ( 2 );
