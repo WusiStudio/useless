@@ -198,7 +198,7 @@ namespace ws
 
 				if (matchBegin == matchEnd)
 				{
-					std::cout << U"格式化数据不匹配"  << std::endl;
+					std::cout << "Data and format mismatch"  << std::endl;
 					p_strs << p_source;
 					return true;
 				}
@@ -247,7 +247,7 @@ namespace ws
 				matchBegin = std::sregex_iterator ( p_source.begin (), p_source.end (), checkNumber );
 				if (matchBegin == matchEnd)
 				{
-					std::cout << U"尝试格式化失败"  << std::endl;
+					std::cout << "Formatting data failed"  << std::endl;
 					p_strs << p_source;
 					return true;
 				}
@@ -294,7 +294,7 @@ namespace ws
 
 				if (matchBegin == matchEnd)
 				{
-					std::cout << U"尝试格式化失败"  << std::endl;
+					std::cout << "Attempt to format data failed"  << std::endl;
 					p_strs << p_format;
 					return true;
 				}
@@ -375,7 +375,7 @@ namespace ws
 
 				if( !stampTime )
 				{
-					std::cout << U"无法解析原数据" << std::endl;
+					std::cout << "The data format is unknown" << std::endl;
 					return false;
 				}
 
