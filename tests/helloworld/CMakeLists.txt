@@ -8,7 +8,9 @@ aux_source_directory(src SRCS)
 
 add_executable(${PROJECT_NAME} ${SRCS})
 
+if( DEFINED UNIX AND NOT DEFINED APPLE )
 target_link_libraries(${PROJECT_NAME} uuid)
+endif( DEFINED UNIX AND NOT DEFINED APPLE )
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_HOME_DIRECTORY}/build/tests/${PROJECT_NAME})
 
