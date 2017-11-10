@@ -299,16 +299,7 @@ namespace ws
 					return true;
 				}
 
-				std::string unit;
-				if( matchBegin->str ( 1 ).length () > 0 )
-				{
-					unit = matchBegin->str ( 1 );
-				}else
-				{
-					std::stringstream t_sstr;
-					t_sstr << U"￥";
-					unit = t_sstr.str();
-				}
+				std::string unit = matchBegin->str ( 1 ).length () > 0 ? matchBegin->str ( 1 ) : "$";
 
 				std::string sourceData = matchBegin->str ( 2 );
 
