@@ -18,6 +18,8 @@ option(BE_BASED_ON_DIRECT3D_12 "" OFF)
 
 option(BUILD_UNIT_TESTS "" ON)
 
+include_directories(uuid)
+
 #设置编译选项-------------------------------------------
 if(WIN32)
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")

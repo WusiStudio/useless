@@ -9,7 +9,7 @@
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
     #include <objbase.h>
 #elif defined(__linux__) || defined(__unix__)
-    #include <uuid/uuid.h>
+    #include <uuid.h>
 #endif
 
 
