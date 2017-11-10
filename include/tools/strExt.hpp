@@ -198,7 +198,7 @@ namespace ws
 
 				if (matchBegin == matchEnd)
 				{
-					std::cout << "格式化数据不匹配"  << std::endl;
+					std::cout << U"格式化数据不匹配"  << std::endl;
 					p_strs << p_source;
 					return true;
 				}
@@ -247,7 +247,7 @@ namespace ws
 				matchBegin = std::sregex_iterator ( p_source.begin (), p_source.end (), checkNumber );
 				if (matchBegin == matchEnd)
 				{
-					std::cout << "尝试格式化失败"  << std::endl;
+					std::cout << U"尝试格式化失败"  << std::endl;
 					p_strs << p_source;
 					return true;
 				}
@@ -294,12 +294,21 @@ namespace ws
 
 				if (matchBegin == matchEnd)
 				{
-					std::cout << "尝试格式化失败"  << std::endl;
+					std::cout << U"尝试格式化失败"  << std::endl;
 					p_strs << p_format;
 					return true;
 				}
 
-				std::string unit = matchBegin->str ( 1 ).length () > 0 ? matchBegin->str ( 1 ) : "￥";
+				std::string unit;
+				if( matchBegin->str ( 1 ).length () > 0 )
+				{
+					unit = matchBegin->str ( 1 );
+				}else
+				{
+					std::stringstream t_sstr;
+					t_sstr << U"￥";
+					unit = t_sstr.str();
+				}
 
 				std::string sourceData = matchBegin->str ( 2 );
 
@@ -366,7 +375,7 @@ namespace ws
 
 				if( !stampTime )
 				{
-					std::cout << "无法解析原数据" << std::endl;
+					std::cout << U"无法解析原数据" << std::endl;
 					return false;
 				}
 
