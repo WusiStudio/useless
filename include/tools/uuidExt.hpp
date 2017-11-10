@@ -8,8 +8,8 @@
 
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
     #include <objbase.h>
-#elif defined(__linux__) || defined(__unix__)
-    #include <uuid.h>
+#elif defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+    #include <uuid/uuid.h>
 #endif
 
 
@@ -29,7 +29,7 @@ namespace ws
 					guid.Data4[3], guid.Data4[4], guid.Data4[5], 
 					guid.Data4[6], guid.Data4[7] );
 #endif
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 			uuid_t uuid; 
 			uuid_generate ( uuid ); 
 			snprintf ( mVal, sizeof ( mVal ), "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X", 

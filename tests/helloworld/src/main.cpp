@@ -2,6 +2,7 @@
 #include "tools/log.hpp"
 #include "../include/myObject.h"
 #include "tools/strExt.hpp"
+#include "tools/uuidExt.hpp"
 
 void test( void )
 {
@@ -75,6 +76,9 @@ int main( int argc, char ** argv )
     LOG.debug("[{0, -7}]", "你吃饭了");
     LOG.debug("[{0, -7}]", "你吃饭了吗");
     LOG.debug("[{0, -7}]", "你吃饭了吗？");
+
+
+    LOG.debug("uuid test: ", ws::uuid().toString());
 
     return 0;
 }
