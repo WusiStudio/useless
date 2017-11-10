@@ -8,6 +8,7 @@ aux_source_directory(src SRCS)
 
 add_executable(${PROJECT_NAME} ${SRCS})
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_HOME_DIRECTORY}/build/tests/${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} uuid)
 
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_HOME_DIRECTORY}/build/tests/${PROJECT_NAME})
 

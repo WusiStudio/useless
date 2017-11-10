@@ -50,7 +50,7 @@ namespace ws
 
         bool operator==( const uuid & p_uuid )
         {
-            for( int i = 0; i < sizeof(mVal); ++i )
+            for( size_t i = 0; i < sizeof(mVal); ++i )
             {
                 if( mVal[i] != p_uuid.mVal[i] ) return false;
             }
