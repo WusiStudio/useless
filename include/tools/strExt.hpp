@@ -36,6 +36,12 @@ namespace ws
 					{
 						length++;
 					}
+
+					if (i + length > p_str.length ())
+					{
+						break;
+					}
+
 					//大于０x80的字符是中文并且占两个英文字符的宽度
 					result += getCharRealLength( temp );
 					length = length < 1 ? 1 : length;
@@ -90,6 +96,7 @@ namespace ws
 				{
 					t_result << p_str;
 				}
+
 				for( unsigned int i = 0; i < p_limitLength - t_strLen; ++i )
 				{
 					t_result << " ";
@@ -103,6 +110,7 @@ namespace ws
 			else if( p_coding == "utf-8" )
 			{
 				size_t t_scaler = 0, t_realLen = 0;
+				unsigned t_charLen = 0;
 				for (t_scaler = 0; t_scaler < p_str.length ();)
 				{
 					int t_length = 0;
@@ -113,7 +121,7 @@ namespace ws
 					}
 					//大于０x80的字符是中文并且占两个英文字符的宽度
 
-					unsigned t_charLen = getCharRealLength( temp );
+					t_charLen = getCharRealLength( temp );
 
 					if( t_realLen + t_charLen > p_limitLength - t_tail.length() )
 					{
@@ -123,7 +131,7 @@ namespace ws
 					t_length = t_length < 1 ? 1 : t_length;
 					t_scaler += t_length;
 				}
-				t_result << p_str.substr( 0, t_scaler );
+				t_result << p_str.substr( 0, t_charLen > 1 ? t_scaler + 1: t_scaler);
 				for( unsigned int i = t_realLen; i < p_limitLength - t_tail.length(); ++i )
 				{
 					t_result << ".";

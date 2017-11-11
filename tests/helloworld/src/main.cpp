@@ -52,7 +52,9 @@ int main( int argc, char ** argv )
     LOG.debug("[{0, 7}]", "987654321");
 
     LOG.debug("[{0, 7}]", "你");
+	LOG.info ("-------------------");
     LOG.debug("[{0, 7}]", "你吃");
+	LOG.info ("-------------------");
     LOG.debug("[{0, 7}]", "你吃饭");
     LOG.debug("[{0, 7}]", "你吃饭了");
     LOG.debug("[{0, 7}]", "你吃饭了吗");
