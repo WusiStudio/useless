@@ -83,7 +83,7 @@ int main( int argc, char ** argv )
     LOG.debug("uuid test: ", ws::uuid().toString());
 
 
-    LOG.debug("{0, C}", 12);
+    LOG.debug("{0, C}", 12345678.901);
 
     return 0;
 }

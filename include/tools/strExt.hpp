@@ -165,7 +165,7 @@ namespace ws
 					std::string baseNumber = result.substr ( 0, scientificIndex );
 					int exponential = atoi ( result.substr ( scientificIndex + 2 ).c_str () );
 					auto dotIndex = baseNumber.find ( '.' );
-					baseNumber.replace ( dotIndex, dotIndex + 1, "" );
+					baseNumber.replace ( dotIndex, 1, "" );
 					while (baseNumber.length () < exponential + dotIndex)
 					{
 						baseNumber += "0";
@@ -316,8 +316,8 @@ namespace ws
 					sourceData.replace ( sourceData.begin () + (int)index, sourceData.begin () + (int)index + 1, "" );
 				}
 
-				float convertData = (float)(roundf ( (float)(atof ( sourceData.c_str () ) * pow ( 10, decimalDigits )) ) / pow ( 10, decimalDigits ));
-
+				double convertData = round ( atof ( sourceData.c_str () ) * pow ( 10, decimalDigits ) ) / pow ( 10, decimalDigits );
+				
 				std::stringstream tempSStr;
 				tempSStr << convertData;
 
