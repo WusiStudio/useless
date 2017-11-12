@@ -11,6 +11,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 
 #include "uuidExt.hpp"
@@ -273,6 +274,7 @@ namespace ws
 				tempSStr << convertData;
 
 				//科学计数法转换
+				
 				std::string tempStr = scientificToDefault ( tempSStr.str () );
 				p_strs << tempStr;
 
@@ -319,13 +321,24 @@ namespace ws
 				double convertData = round ( atof ( sourceData.c_str () ) * pow ( 10, decimalDigits ) ) / pow ( 10, decimalDigits );
 				
 				std::stringstream tempSStr;
-				tempSStr << convertData;
+				tempSStr << std::fixed << convertData;
 
 				//科学计数法转换
 				std::string tempStr = scientificToDefault ( tempSStr.str () );
+
+				auto dotIndex = tempStr.find ('.');
+
+				for (unsigned int i = tempStr.length () - 1; dotIndex != std::string::npos && i > dotIndex + decimalDigits; --i)
+				{
+					if (tempStr.at (i) != '0')
+					{
+						break;
+					}
+					tempStr.erase (i);
+				}
+
 				p_strs << unit << tempStr;
 
-				auto dotIndex = tempStr.find ( '.' );
 				if (dotIndex == std::string::npos)
 				{
 					p_strs << ".";
@@ -414,7 +427,7 @@ namespace ws
 				}
 
 				std::stringstream ss_source;
-				ss_source << p_source;
+				ss_source << std::fixed << p_source;
 
 				std::string s_source = ss_source.str ();
 				if ( !( _format_aline( strs, p_format, s_source ) || 
