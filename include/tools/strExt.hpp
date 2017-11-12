@@ -132,7 +132,12 @@ namespace ws
 					t_length = t_length < 1 ? 1 : t_length;
 					t_scaler += t_length;
 				}
-				t_result << p_str.substr( 0, t_charLen > 1 ? t_scaler + 1: t_scaler);
+
+				#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
+				t_scaler += 1;
+				#endif
+
+				t_result << p_str.substr( 0, t_scaler);
 				for( unsigned int i = t_realLen; i < p_limitLength - t_tail.length(); ++i )
 				{
 					t_result << ".";
