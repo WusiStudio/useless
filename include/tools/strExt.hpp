@@ -134,7 +134,7 @@ namespace ws
 				}
 
 				#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
-				t_scaler += 1;
+				t_scaler = t_charLen > 1 ? t_scaler + 1 : t_scaler;
 				#endif
 
 				t_result << p_str.substr( 0, t_scaler);
