@@ -56,7 +56,7 @@ namespace ws
 				{
 					t_length++;
 				}
-				t_length = t_length < 1 ? 1 : t_length
+				t_length = t_length < 1 ? 1 : t_length;
 			}
 			return t_length;
 		}
@@ -77,9 +77,6 @@ namespace ws
 
 				unsigned int t_realLen = getCharRealLength( t_currChar, p_coding );
 
-				std::cout << "t_realSize: " << t_realSize << std::endl;
-				std::cout << "t_realLen: " << t_realLen << std::endl;
-
 				if( !p_callBack( t_currIndex, t_realSize, t_realLen ) )
 				{
 					break;
@@ -95,8 +92,6 @@ namespace ws
 			std::stringstream t_result;
 
 			unsigned t_strLen = getStringLength( p_str, p_coding );
-
-			std::cout << p_str << ": " << t_strLen << std::endl;
 
 			std::string t_tail;
 
