@@ -33,11 +33,6 @@ namespace ws
             //清空三级缓存
             for( auto & cache : mCaches )
             {
-                // for( auto & cacheByClass : cache )
-                // {
-                //     delete cacheByClass.second;
-                //     LOG.info("---------test");
-                // }
                 cache.clear();
             }
             LOG.debug( "mObjCacheList.size() = {0}", mObjCacheList.size() );
@@ -69,7 +64,6 @@ namespace ws
 
 				tCurrObjIndex++;
 
-                LOG.debug("---");
                 //删除超出的缓存对象
                 if((*item)->frequencyMinusOne () <= -300 || tCacheList == nullptr )
                 {

@@ -16,9 +16,7 @@ int main( int argc, char ** argv )
     
     test();
 
-    LOG.debug("------------");
     IMGCMake
-    LOG.debug("------------");
 
     LOG.debug("{0}{2}", " 0,", " 1,", " 2,", " 3");
 
@@ -30,9 +28,7 @@ int main( int argc, char ** argv )
     ws::baseObj * t_baseObject = &myobject;
     LOG.debug( "t_baseObject: {0}, {1}", typeid(t_baseObject).name(), t_baseObject->realType() );
 
-    LOG.debug("------------");
     myobject.release();
-    LOG.debug("------------");
 
     IMGCMake
 
@@ -52,9 +48,7 @@ int main( int argc, char ** argv )
     LOG.debug("[{0, 7}]", "987654321");
 
     LOG.debug("[{0, 7}]", "你");
-	LOG.info ("-------------------");
     LOG.debug("[{0, 7}]", "你吃");
-	LOG.info ("-------------------");
     LOG.debug("[{0, 7}]", "你吃饭");
     LOG.debug("[{0, 7}]", "你吃饭了");
     LOG.debug("[{0, 7}]", "你吃饭了吗");
