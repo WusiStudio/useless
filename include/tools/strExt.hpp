@@ -134,12 +134,6 @@ namespace ws
 					
 					if( t_strRealSize + p_realLength > p_limitLength - t_tail.length() )
 					{
-					// #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
-					// 	if( p_realLength > 1 )
-					// 	{
-					// 		t_strIndex++;	
-					// 	}
-					// #endif
 						return false;
 					}
 
