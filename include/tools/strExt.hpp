@@ -14,7 +14,10 @@
 #include <iomanip>
 #include <cmath>
 #include <functional>
+
+#if defined(__unix__) || defined(__APPLE__)
 #include <langinfo.h>
+#endif
 
 #include "uuidExt.hpp"
 
@@ -89,11 +92,14 @@ namespace ws
 		//获取当前运行环境编码
 		static std::string & getSystemCodeset( void )
 		{
-			static std::string t_systemCodeset = "";
+			static std::string t_systemCodeset = "UTF-8";
+			
 			if( t_systemCodeset.size() <= 0 )
 			{
+				#if defined(__unix__) || defined(__APPLE__)
 				setlocale(LC_CTYPE, "");
 				t_systemCodeset = nl_langinfo(CODESET);
+				#endif
 
 				if( t_systemCodeset.size() <= 0 )
 				{
