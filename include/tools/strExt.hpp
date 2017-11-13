@@ -28,7 +28,7 @@ namespace ws
 		{
 			unsigned result = 0;
 			eachString( p_str, [&result, &p_str](const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength)->bool{
-				result += getCharRealLength( p_str.at( p_index ) );
+				result += p_realLength;
 				return true;
 			}, p_coding );
 			return result;
@@ -57,7 +57,7 @@ namespace ws
 					t_length++;
 				}
 			}
-			return t_length < 1 ? 1 : t_length;
+			return t_length + 1;
 		}
 
 		//遍历字符串的每一个字符 返回字符位置 字符大小 字符长度
@@ -68,17 +68,23 @@ namespace ws
 			
 			for( t_currIndex = 0; t_currIndex < t_strSize; )
 			{
-				int t_length = 0;
+				int t_realSize = 0;
 				
-				t_length = getCharRealSize( p_str.at ( t_currIndex ), p_coding );
-				unsigned int t_realLen = getCharRealLength( p_str.at ( t_currIndex ), p_coding );
+				char t_currChar = p_str.at ( t_currIndex );
+				
+				t_realSize = getCharRealSize( t_currChar, p_coding );
 
-				if( !p_callBack( t_currIndex, t_length, t_realLen ) )
+				unsigned int t_realLen = getCharRealLength( t_currChar, p_coding );
+
+				std::cout << "t_realSize: " << t_realSize << std::endl;
+				std::cout << "t_realLen: " << t_realLen << std::endl;
+
+				if( !p_callBack( t_currIndex, t_realSize, t_realLen ) )
 				{
 					break;
 				}
 
-				t_currIndex += t_length;
+				t_currIndex += t_realSize;
 			}
 		}
 
@@ -88,6 +94,8 @@ namespace ws
 			std::stringstream t_result;
 
 			unsigned t_strLen = getStringLength( p_str, p_coding );
+
+			std::cout << p_str << ": " << t_strLen << std::endl;
 
 			std::string t_tail;
 
@@ -130,6 +138,12 @@ namespace ws
 					
 					if( t_strRealSize + p_realLength > p_limitLength - t_tail.length() )
 					{
+					// #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
+					// 	if( p_realLength > 1 )
+					// 	{
+					// 		t_strIndex++;	
+					// 	}
+					// #endif
 						return false;
 					}
 
@@ -139,7 +153,7 @@ namespace ws
 					return true;
 				}, p_coding );
 
-				t_result << p_str.substr( 0, t_strIndex);
+				t_result << p_str.substr( 0, t_strIndex );
 				for( unsigned int i = t_strRealSize; i < p_limitLength - t_tail.length(); ++i )
 				{
 					t_result << ".";
