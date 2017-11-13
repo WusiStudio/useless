@@ -56,8 +56,9 @@ namespace ws
 				{
 					t_length++;
 				}
+				t_length = t_length < 1 ? 1 : t_length
 			}
-			return t_length + 1;
+			return t_length;
 		}
 
 		//遍历字符串的每一个字符 返回字符位置 字符大小 字符长度
