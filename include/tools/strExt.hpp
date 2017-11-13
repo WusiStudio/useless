@@ -13,6 +13,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <functional>
 
 #include "uuidExt.hpp"
 
@@ -26,45 +27,59 @@ namespace ws
 		static const unsigned getStringLength ( const std::string & p_str, const std::string & p_coding = "utf-8" )
 		{
 			unsigned result = 0;
-			if (p_coding == "utf-8")
-			{
-				//根据utf-8编码规则判断一个字符占几个字节
-				for (size_t i = 0; i < p_str.length ();)
-				{
-					int length = 0;
-					unsigned short temp = (unsigned short)(p_str.at ( i ) & 0x00FF);
-					while ((temp << length & 0x00FF) > 1 << 7)
-					{
-						length++;
-					}
-
-					if (i + length > p_str.length ())
-					{
-						break;
-					}
-
-					//大于０x80的字符是中文并且占两个英文字符的宽度
-					result += getCharRealLength( temp );
-					length = length < 1 ? 1 : length;
-					i += length;
-				}
-			}
-			else
-			{
-				//其他编码类型还没有做
-				result = p_str.length ();
-			}
+			eachString( p_str, [&result, &p_str](const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength)->bool{
+				result += getCharRealLength( p_str.at( p_index ) );
+				return true;
+			}, p_coding );
 			return result;
 		}
 
+		//返回字符实际长度 (单位是一个英文字符)
 		static const unsigned getCharRealLength( const short p_char, const std::string & p_coding = "utf-8" )
 		{
 			if( p_coding == "utf-8" )
 			{
-				return p_char < 0x80 ? 1 : 2;
+				return (unsigned short)(p_char & 0x00FF) < 0x80 ? 1 : 2;
 			}
 
 			return 1;
+		}
+
+		//返回字符实际大小 (单位bit)
+		static const unsigned getCharRealSize( const short p_char, const std::string & p_coding = "utf-8" )
+		{
+			int t_length = 0;
+			if( p_coding == "utf-8" )
+			{
+				unsigned short temp = (unsigned short)(p_char & 0x00FF);
+				while ((temp << t_length & 0x00FF) > 1 << 7)
+				{
+					t_length++;
+				}
+			}
+			return t_length < 1 ? 1 : t_length;
+		}
+
+		//遍历字符串的每一个字符 返回字符位置 字符大小 字符长度
+		static void eachString( const std::string & p_str, std::function< bool ( const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength )> p_callBack, const std::string & p_coding = "utf-8" )
+		{
+			int t_currIndex = 0;
+			int t_strSize = p_str.size();
+			
+			for( t_currIndex = 0; t_currIndex < t_strSize; )
+			{
+				int t_length = 0;
+				
+				t_length = getCharRealSize( p_str.at ( t_currIndex ), p_coding );
+				unsigned int t_realLen = getCharRealLength( p_str.at ( t_currIndex ), p_coding );
+
+				if( !p_callBack( t_currIndex, t_length, t_realLen ) )
+				{
+					break;
+				}
+
+				t_currIndex += t_length;
+			}
 		}
 
 		//字符串长度限制
@@ -108,45 +123,30 @@ namespace ws
 					t_result << p_str;
 				}
 			}
-			else if( p_coding == "utf-8" )
+			else
 			{
-				size_t t_scaler = 0, t_realLen = 0;
-				unsigned t_charLen = 0;
-				for (t_scaler = 0; t_scaler < p_str.length ();)
-				{
-					int t_length = 0;
-					unsigned short temp = (unsigned short)(p_str.at ( t_scaler ) & 0x00FF);
-					while ((temp << t_length & 0x00FF) > 1 << 7)
+				size_t t_strIndex = 0, t_strRealSize = 0;
+				eachString( p_str, [&t_strRealSize, &t_strIndex, t_tail, p_limitLength](const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength)->bool{
+					
+					if( t_strRealSize + p_realLength > p_limitLength - t_tail.length() )
 					{
-						t_length++;
+						return false;
 					}
-					//大于０x80的字符是中文并且占两个英文字符的宽度
 
-					t_charLen = getCharRealLength( temp );
+					t_strRealSize += p_realLength;
+					t_strIndex += p_size;
+					
+					return true;
+				}, p_coding );
 
-					if( t_realLen + t_charLen > p_limitLength - t_tail.length() )
-					{
-						break;
-					}
-					t_realLen += t_charLen;
-					t_length = t_length < 1 ? 1 : t_length;
-					t_scaler += t_length;
-				}
-
-				#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
-				t_scaler = t_charLen > 1 ? t_scaler + 1 : t_scaler;
-				#endif
-
-				t_result << p_str.substr( 0, t_scaler);
-				for( unsigned int i = t_realLen; i < p_limitLength - t_tail.length(); ++i )
+				t_result << p_str.substr( 0, t_strIndex);
+				for( unsigned int i = t_strRealSize; i < p_limitLength - t_tail.length(); ++i )
 				{
 					t_result << ".";
 				}
 				t_result << t_tail;
-			}else
-			{
-				t_result << p_str.substr( 0, p_limitLength - t_tail.length() ) << t_tail;
 			}
+
 			return t_result.str();
 		}
 
