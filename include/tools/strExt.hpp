@@ -15,10 +15,6 @@
 #include <cmath>
 #include <functional>
 
-#if defined(__unix__) || defined(__APPLE__)
-#include <langinfo.h>
-#endif
-
 #include "uuidExt.hpp"
 
 namespace ws
@@ -27,7 +23,7 @@ namespace ws
 	{
 	public:
 		//返回字符串实际长度（单位是一个英文字符）
-		static const unsigned getStringLength ( const std::string & p_str, const std::string & p_coding = getSystemCodeset() )
+		static const unsigned getStringLength ( const std::string & p_str, const std::string & p_coding = "UTF-8" )
 		{
 			unsigned result = 0;
 			eachString( p_str, [&result, &p_str](const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength)->bool{
@@ -38,7 +34,7 @@ namespace ws
 		}
 
 		//返回字符实际长度 (单位是一个英文字符)
-		static const unsigned getCharRealLength( const short p_char, const std::string & p_coding = getSystemCodeset() )
+		static const unsigned getCharRealLength( const short p_char, const std::string & p_coding = "UTF-8" )
 		{
 			if( p_coding == "UTF-8" )
 			{
@@ -49,7 +45,7 @@ namespace ws
 		}
 
 		//返回字符实际大小 (单位bit)
-		static const unsigned getCharRealSize( const short p_char, const std::string & p_coding = getSystemCodeset() )
+		static const unsigned getCharRealSize( const short p_char, const std::string & p_coding = "UTF-8" )
 		{
 			int t_length = 0;
 			if( p_coding == "UTF-8" )
@@ -65,7 +61,7 @@ namespace ws
 		}
 
 		//遍历字符串的每一个字符 返回字符位置 字符大小 字符长度
-		static void eachString( const std::string & p_str, std::function< bool ( const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength )> p_callBack, const std::string & p_coding = getSystemCodeset() )
+		static void eachString( const std::string & p_str, std::function< bool ( const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength )> p_callBack, const std::string & p_coding = "UTF-8" )
 		{
 			int t_currIndex = 0;
 			int t_strSize = p_str.size();
@@ -89,29 +85,8 @@ namespace ws
 			}
 		}
 
-		//获取当前运行环境编码
-		static std::string & getSystemCodeset( void )
-		{
-			static std::string t_systemCodeset = "UTF-8";
-			
-			if( t_systemCodeset.size() <= 0 )
-			{
-				#if defined(__unix__) || defined(__APPLE__)
-				setlocale(LC_CTYPE, "");
-				t_systemCodeset = nl_langinfo(CODESET);
-				#endif
-
-				if( t_systemCodeset.size() <= 0 )
-				{
-					std::cout << "get system codeset faild" << std::endl;
-				}
-			}
-
-			return t_systemCodeset;
-		}
-
 		//字符串长度限制
-		static std::string stringLimit( const std::string & p_str, const unsigned int p_limitLength, const bool forb = true, const std::string & p_coding = getSystemCodeset() )
+		static std::string stringLimit( const std::string & p_str, const unsigned int p_limitLength, const bool forb = true, const std::string & p_coding = "UTF-8" )
 		{
 			std::stringstream t_result;
 
