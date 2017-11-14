@@ -38,10 +38,6 @@ int main( int argc, char ** argv )
 
     LOG.info("char set: ", CHAR_SET);
 
-    LCID t_lcid = GetSystemDefaultLCID();
-    std::cout << "-------------t_lcid: " << t_lcid << std::endl;
-
-
     LOG.debug("[{0, 7}]", "1");
     LOG.debug("[{0, 7}]", "12");
     LOG.debug("[{0, 7}]", "123");

@@ -55,7 +55,7 @@ namespace ws
 				if( t_short >= 0x81 && t_short <= 0xFE )
 				{
 					unsigned short temp = *(unsigned short *)p_char;
-					if( temp >= 0xB0A1 && temp <= 0xF7FE || temp >= 0x8140 && temp <=0xA0FE || temp >= 0xAA40 && temp <= 0xFEA0 )
+					if( (temp >= 0xB0A1 && temp <= 0xF7FE) || (temp >= 0x8140 && temp <=0xA0FE) || (temp >= 0xAA40 && temp <= 0xFEA0) )
 					{
 						return 2;
 					}
