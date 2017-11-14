@@ -31,7 +31,7 @@ namespace ws
 	{
 	public:
 		//返回字符串实际长度（单位是一个英文字符）
-		static const unsigned getStringLength ( const std::string & p_str, const std::string & p_coding = getSystemCodeset() )
+		static const unsigned getStringLength ( const std::string & p_str, const std::string & p_coding = CHAR_SET )
 		{
 			unsigned result = 0;
 			eachString( p_str, [&result, &p_str](const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength)->bool{
@@ -42,34 +42,60 @@ namespace ws
 		}
 
 		//返回字符实际长度 (单位是一个英文字符)
-		static const unsigned getCharRealLength( const short p_char, const std::string & p_coding = getSystemCodeset() )
+		static const unsigned getCharRealLength( const char * p_char, const std::string & p_coding = CHAR_SET )
 		{
 			if( p_coding == "UTF-8" )
 			{
-				return (unsigned short)(p_char & 0x00FF) < 0x80 ? 1 : 2;
+				return (unsigned short)(*p_char & 0x00FF) < 0x80 ? 1 : 2;
+			}
+
+			if( p_coding == "GBK" )
+			{
+				unsigned short t_short = (unsigned short)(*p_char & 0x00FF);
+				if( t_short >= 0x81 && t_short <= 0xFE )
+				{
+					unsigned short temp = *(unsigned short *)p_char;
+					if( temp >= 0xB0A1 && temp <= 0xF7FE || temp >= 0x8140 && temp <=0xA0FE || temp >= 0xAA40 && temp <= 0xFEA0 )
+					{
+						return 2;
+					}
+				}
+				return 1;
 			}
 
 			return 1;
 		}
 
 		//返回字符实际大小 (单位bit)
-		static const unsigned getCharRealSize( const short p_char, const std::string & p_coding = getSystemCodeset() )
+		static const unsigned getCharRealSize( const char * p_char, const std::string & p_coding = CHAR_SET )
 		{
 			int t_length = 0;
 			if( p_coding == "UTF-8" )
 			{
-				unsigned short temp = (unsigned short)(p_char & 0x00FF);
+				unsigned short temp = (unsigned short)(*p_char & 0x00FF);
 				while ((temp << t_length & 0x00FF) > 1 << 7)
 				{
 					t_length++;
 				}
 				t_length = t_length < 1 ? 1 : t_length;
 			}
+			if( p_coding == "GBK" )
+			{
+				unsigned short t_short = (unsigned short)(*p_char & 0x00FF);
+				if(t_short >= 0x81 && t_short <= 0xFE)
+				{
+					t_length = 2;
+				}else
+				{
+					t_length = 1;
+				}
+				
+			}
 			return t_length;
 		}
 
 		//遍历字符串的每一个字符 返回字符位置 字符大小 字符长度
-		static void eachString( const std::string & p_str, std::function< bool ( const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength )> p_callBack, const std::string & p_coding = getSystemCodeset() )
+		static void eachString( const std::string & p_str, std::function< bool ( const unsigned int p_index, const unsigned int p_size, const unsigned int p_realLength )> p_callBack, const std::string & p_coding = CHAR_SET )
 		{
 			int t_currIndex = 0;
 			int t_strSize = p_str.size();
@@ -78,7 +104,7 @@ namespace ws
 			{
 				int t_realSize = 0;
 				
-				char t_currChar = p_str.at ( t_currIndex );
+				const char * t_currChar = p_str.c_str() + t_currIndex;
 				
 				t_realSize = getCharRealSize( t_currChar, p_coding );
 
@@ -102,7 +128,16 @@ namespace ws
 			{
 
 			#if defined(_WIN32)
-				t_systemCodeset = CHAR_SET;
+				LCID t_lcid = GetSystemDefaultLCID();
+				switch( t_lcid )
+				{
+					case 0x409:
+						t_systemCodeset = "United States";
+					break;
+					case 0x804:
+						t_systemCodeset = "GBK";
+					break;
+				}
 			#elif defined(__unix__) || defined(__APPLE__)
 				setlocale(LC_CTYPE, "");
 				t_systemCodeset = nl_langinfo(CODESET);
@@ -118,7 +153,7 @@ namespace ws
 		}
 
 		//字符串长度限制
-		static std::string stringLimit( const std::string & p_str, const unsigned int p_limitLength, const bool forb = true, const std::string & p_coding = getSystemCodeset() )
+		static std::string stringLimit( const std::string & p_str, const unsigned int p_limitLength, const bool forb = true, const std::string & p_coding = CHAR_SET )
 		{
 			std::stringstream t_result;
 
@@ -173,7 +208,7 @@ namespace ws
 					
 					return true;
 				}, p_coding );
-
+				
 				t_result << p_str.substr( 0, t_strIndex );
 				for( unsigned int i = t_strRealSize; i < p_limitLength - t_tail.length(); ++i )
 				{
