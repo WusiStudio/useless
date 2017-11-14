@@ -19,6 +19,10 @@
 #include <langinfo.h>
 #endif
 
+#ifndef CHAR_SET
+#define CHAR_SET "UTF-8"
+#endif //CHAR_SET
+
 #include "uuidExt.hpp"
 
 namespace ws
@@ -96,10 +100,13 @@ namespace ws
 			
 			if( t_systemCodeset.size() <= 0 )
 			{
-				#if defined(__unix__) || defined(__APPLE__)
+
+			#if defined(_WIN32)
+				t_systemCodeset = CHAR_SET;
+			#elif defined(__unix__) || defined(__APPLE__)
 				setlocale(LC_CTYPE, "");
 				t_systemCodeset = nl_langinfo(CODESET);
-				#endif
+			#endif
 
 				if( t_systemCodeset.size() <= 0 )
 				{

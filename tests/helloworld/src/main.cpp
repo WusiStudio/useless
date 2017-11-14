@@ -78,5 +78,7 @@ int main( int argc, char ** argv )
 
     LOG.debug("{0, C}", 12345678.901);
 
+    LOG.info("char set: ", CHAR_SET);
+
     return 0;
 }
