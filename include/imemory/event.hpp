@@ -6,7 +6,6 @@
 #include "tools/uuidExt.hpp"
 
 #include <map>
-#include <vector>
 
 namespace ws
 {
@@ -14,81 +13,31 @@ namespace ws
     struct event
     {
     public:
-        event()
-        {
+        event();
 
-        }
+        ~event();
 
-        ~event()
-        {
-            
-        }
+        event & operator+( const eventType & p_func );
 
+        event & operator=( const eventType & p_func );
 
-        event & operator+( const eventType & p_func )
-        {
-            bind( p_func );
-            return * this;
-        }
+        event & operator+=( const eventType & p_func );
 
-        event & operator=( const eventType & p_func )
-        {
-            bind( p_func );
-            return * this;
-        }
+        uuid append( const eventType & p_func );
 
-        event & operator+=( const eventType & p_func )
-        {
-            bind( p_func );
-            return * this;
-        }
+        uuid bind( const eventType & p_func );
 
-        uuid append( const eventType & p_func )
-        {
-            return bind( p_func );
-        }
+        event & operator-( const ws::uuid & p_funcId );
 
-        uuid bind( const eventType & p_func )
-        {
-            uuid result;
-            mEvents[result.toString()] = p_func;
-            return result;
-        }
+        event & unbind( ws::uuid & p_funcId );
 
-        event & operator-( const ws::uuid & p_funcId )
-        {
-            return unbind( p_funcId );
-        }
-
-        event & unbind( ws::uuid & p_funcId )
-        {
-            if( mEvents.find( p_funcId.toString() ) != mEvents.end() )
-            {
-                mEvents.erase( p_funcId.toString() );
-            }
-            return * this;
-        }
-
-        event & clear( void )
-        {
-            mEvents.clear();
-            return * this;
-        }
+        event & clear( void );
 
         template<typename... Arguments>
-        void operator()( const Arguments & ... p_args )
-        {
-            call( p_args... );
-        }
+        void operator()( const Arguments & ... p_args );
 
         template<typename... Arguments>
-        void call( const Arguments & ... p_args )
-        {
-            for( auto item : mEvents)
-            {
-                item.second( p_args... );
-            }
-        }
+        void call( const Arguments & ... p_args );
 
     private:
         std::map< std::string, eventType > mEvents;
@@ -96,3 +45,5 @@ namespace ws
 }
 
 #endif //__EVENT_HPP__
+
+#include "event.inl"

@@ -12,30 +12,30 @@
 namespace ws
 {
 
-    #define CREATEFUNC( class )													\
-            static class & Create( void )                                       \
-                {                                                               \
-                    class * result = ( class * )ws::gc::instance ().getObj ( typeid( class ).name () );\
-                    if( !result )                                               \
-                    {                                                           \
-                        result = new class();                                   \
-                    }                                                           \
-                                                                                \
-                    if( result->init() )                                        \
-                    {                                                           \
-                        delete result;                                          \
-                        result = nullptr;                                       \
-                    }                                                           \
-                                                                                \
-                    assert( result );                                           \
-                                                                                \
-                    ws::gcWorker::autoRelease ( *(baseObj *)result );           \
-                    return * result;                                            \
-                }                                                               \
-            virtual const char * realType( void ) override                      \
-                {                                                               \
-                    return typeid( class ).name();                              \
-                }                                                               \
+#define CREATEFUNC( class )													\
+        static class & Create( void )                                       \
+            {                                                               \
+                class * result = ( class * )ws::gc::instance ().getObj ( typeid( class ).name () );\
+                if( !result )                                               \
+                {                                                           \
+                    result = new class();                                   \
+                }                                                           \
+                                                                            \
+                if( result->init() )                                        \
+                {                                                           \
+                    delete result;                                          \
+                    result = nullptr;                                       \
+                }                                                           \
+                                                                            \
+                assert( result );                                           \
+                                                                            \
+                ws::gcWorker::autoRelease ( *(baseObj *)result );           \
+                return * result;                                            \
+            }                                                               \
+        virtual const char * realType( void ) override                      \
+            {                                                               \
+                return typeid( class ).name();                              \
+            }                                                               \
 
 //当前作用域中启
 #define IMSTACK		ws::gcWorker __FILE_##__LINE__;
@@ -92,55 +92,24 @@ namespace ws
         CREATEFUNC( object );
 
         //引用加一
-        virtual void retain( void ) override
-        {
-            baseObj::retain();
-        }
+        virtual void retain( void ) override;
 
         //引用减一
-        virtual void release( void ) override
-        {
-            baseObj::release();
-
-            if( baseObj::quote() > 0 ) return;
-
-            if( quote() < 0 )
-            {
-                LOG.warning( "release does not match retain" );
-            }
-
-            if( quote() > 0 || this->destory() )
-            {
-                return;
-            }
-
-            gcWorker::remove( *this );
-            gc::instance().cacheObj( *this );
-        }
+        virtual void release( void ) override;
     protected:
 
-        virtual bool init( void ) override
-        {
-            return baseObj::init();
-        }
+        virtual bool init( void ) override;
 
-        virtual bool destory( void ) override
-        {
-            return baseObj::destory();
-        }
+        virtual bool destory( void ) override;
 
-		object ( void )
-		{
+		object ( void );
 
-		}
-
-		virtual ~object ( void )
-		{
-
-		}
+		virtual ~object ( void );
 
     private:
     };
 }
 
 #endif //__OBJECT_HPP__
+
+#include "object.inl"
