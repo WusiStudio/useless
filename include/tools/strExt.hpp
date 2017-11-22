@@ -21,6 +21,9 @@
 
 namespace ws
 {
+	//int转换为string 限制最小长度
+	std::string intToString( const int p_val, const unsigned p_min = 0 );
+
 	//返回字符串实际长度（单位是一个英文字符）
 	const unsigned getStringLength ( const std::string & p_str, const std::string & p_coding = CHAR_SET );
 

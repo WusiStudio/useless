@@ -90,11 +90,7 @@ namespace ws
             convertData = atoi ( sourceData.c_str () );
         }
 
-        std::stringstream tempSStr;
-        tempSStr << convertData;
-
-        for (int i = (int)(tempSStr.str ().length ()); i < minCount; ++i) { p_strs << "0"; }
-        p_strs << convertData;
+        p_strs << intToString( convertData, minCount );
 
         return true;
     }
@@ -268,12 +264,32 @@ namespace ws
 
         if( !tResult.length() )
         {
-            p_strs << date_time->tm_year + 1900 << "-" << date_time->tm_mon + 1 << "-" << date_time->tm_mday << " " 
-            << date_time->tm_hour << ":" << date_time->tm_min << ":" << date_time->tm_sec;
+            p_strs << date_time->tm_year + 1900 << "-" << intToString( date_time->tm_mon + 1, 2 ) << "-" << intToString( date_time->tm_mday, 2 ) << " " 
+            << intToString( date_time->tm_hour, 2 ) << ":" << intToString( date_time->tm_min, 2 ) << ":" << intToString( date_time->tm_sec, 2 );
             return true;
         }
 
         return true;
+    }
+    
+    inline std::string intToString( const int p_val, const unsigned int p_min )
+    {
+        std::stringstream t_sstr;
+        size_t t_valLen = 0;
+        t_sstr << p_val;
+        t_valLen = t_sstr.str().size();
+        if( t_valLen <  (size_t)p_min )
+        {
+            t_sstr.str("");
+
+            for( size_t i = t_valLen; i < (size_t)p_min; ++i )
+            {
+                t_sstr << "0";
+            }
+
+            t_sstr << p_val;
+        }
+        return t_sstr.str();
     }
 
     //paramemt format
