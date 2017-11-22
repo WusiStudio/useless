@@ -6,11 +6,11 @@
 #include "tools/log.hpp"
 #include "tools/threadExt.hpp"
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     inline gc & gc::instance()
     {
-        unsigned int tThreadId = ws::PthreadSelf();
+        unsigned int tThreadId = ROOT_NAMESPACE::PthreadSelf();
         if( Instances().find( tThreadId ) == Instances().end() )
         {
             Instances()[ tThreadId ] = new gc();

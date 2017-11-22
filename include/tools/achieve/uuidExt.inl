@@ -11,7 +11,7 @@
     #include <uuid/uuid.h>
 #endif
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
 
     inline uuid::uuid()

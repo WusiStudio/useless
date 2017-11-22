@@ -8,7 +8,7 @@
 #include <langinfo.h>
 #endif
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     struct placeholder
     {

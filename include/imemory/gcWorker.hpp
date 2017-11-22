@@ -5,7 +5,7 @@
 #include "baseObj.hpp"
 #include "gc.hpp"
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     class gcWorker
     {

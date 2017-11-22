@@ -8,7 +8,7 @@
 #include <stack>
 #include <list>
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     class gc : public baseObj
     {

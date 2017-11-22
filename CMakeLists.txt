@@ -37,6 +37,8 @@ elseif(UNIX)
     add_compile_options(-DCHAR_SET="UTF-8")
 endif()
 
+add_compile_options(-DROOT_NAMESPACE=ws)
+
 if(BUILD_UNIT_TESTS)
     add_subdirectory(tests)
 endif()

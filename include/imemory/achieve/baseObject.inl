@@ -2,7 +2,7 @@
 #ifndef __BASE_OBJECT_INL__
 #define __BASE_OBJECT_INL__
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     inline void baseObj::retain( void )
     {

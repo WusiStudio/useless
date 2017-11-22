@@ -2,7 +2,7 @@
 #ifndef __EVENT_INL__
 #define __EVENT_INL__
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     template<typename eventType>
     inline event<eventType>::event()
@@ -52,13 +52,13 @@ namespace ws
     }
 
     template<typename eventType>
-    inline event<eventType> & event<eventType>::operator-( const ws::uuid & p_funcId )
+    inline event<eventType> & event<eventType>::operator-( const ROOT_NAMESPACE::uuid & p_funcId )
     {
         return unbind( p_funcId );
     }
 
     template<typename eventType>
-    inline event<eventType> & event<eventType>::unbind( ws::uuid & p_funcId )
+    inline event<eventType> & event<eventType>::unbind( ROOT_NAMESPACE::uuid & p_funcId )
     {
         if( mEvents.find( p_funcId.toString() ) != mEvents.end() )
         {

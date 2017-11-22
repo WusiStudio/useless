@@ -4,7 +4,7 @@
 
 bool myObject::init( void )
 {
-    if( ws::object::init() )
+    if( ROOT_NAMESPACE::object::init() )
     {
         return true;
     }
@@ -16,7 +16,7 @@ bool myObject::init( void )
 
 bool myObject::destory( void )
 {
-    if( ws::object::destory() )
+    if( ROOT_NAMESPACE::object::destory() )
     {
         return true;
     }

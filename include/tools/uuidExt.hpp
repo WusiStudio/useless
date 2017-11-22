@@ -5,7 +5,7 @@
 #include <string>
 
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     class uuid
     {

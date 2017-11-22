@@ -5,11 +5,11 @@
 #include "tools/log.hpp"
 #include "tools/threadExt.hpp"
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     inline gcWorker::gcWorker(void)
     {
-        mThreadId = ws::PthreadSelf();
+        mThreadId = ROOT_NAMESPACE::PthreadSelf();
         if( GcWorkers().find( mThreadId ) == GcWorkers().end() )
         {
             GcWorkers()[ mThreadId ] = new std::stack< gcWorker * >();
@@ -47,22 +47,22 @@ namespace ws
     //将对象加入自动回收系统
     inline void gcWorker::autoRelease( baseObj & p_bobj )
     {
-        if ( !GcWorkers().size () || GcWorkers().find( ws::PthreadSelf () ) == GcWorkers().end() || !GcWorkers()[ws::PthreadSelf ()]->size())
+        if ( !GcWorkers().size () || GcWorkers().find( ROOT_NAMESPACE::PthreadSelf () ) == GcWorkers().end() || !GcWorkers()[ROOT_NAMESPACE::PthreadSelf ()]->size())
         {
             LOG.warning ( "the current thread has no gcWorker!" );
             return;
         }
-        GcWorkers()[ws::PthreadSelf()]->top()->mManageObjList.push_back( &p_bobj );
+        GcWorkers()[ROOT_NAMESPACE::PthreadSelf()]->top()->mManageObjList.push_back( &p_bobj );
     }
 
     inline void gcWorker::remove( baseObj & p_bobj )
     {
-        if ( !GcWorkers().size () || GcWorkers().find( ws::PthreadSelf () ) == GcWorkers().end() || !GcWorkers()[ws::PthreadSelf ()]->size())
+        if ( !GcWorkers().size () || GcWorkers().find( ROOT_NAMESPACE::PthreadSelf () ) == GcWorkers().end() || !GcWorkers()[ROOT_NAMESPACE::PthreadSelf ()]->size())
         {
             LOG.warning ( "the current thread has no gcWorker!" );
             return;
         }
-        std::list< baseObj * > & tMangeObjectList = GcWorkers()[ws::PthreadSelf()]->top()->mManageObjList;
+        std::list< baseObj * > & tMangeObjectList = GcWorkers()[ROOT_NAMESPACE::PthreadSelf()]->top()->mManageObjList;
         for( std::list< baseObj * >::iterator t_item = tMangeObjectList.begin(); t_item != tMangeObjectList.end(); ++t_item )
         {
             if( *t_item == &p_bobj )

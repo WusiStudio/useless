@@ -7,7 +7,7 @@
 
 #include <map>
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     template<typename eventType>
     struct event
@@ -27,9 +27,9 @@ namespace ws
 
         uuid bind( const eventType & p_func );
 
-        event & operator-( const ws::uuid & p_funcId );
+        event & operator-( const ROOT_NAMESPACE::uuid & p_funcId );
 
-        event & unbind( ws::uuid & p_funcId );
+        event & unbind( ROOT_NAMESPACE::uuid & p_funcId );
 
         event & clear( void );
 

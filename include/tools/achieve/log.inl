@@ -6,7 +6,7 @@
 #include <mutex>
 #include "../strExt.hpp"
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     inline log & log::Instance(void)
     {

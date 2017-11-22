@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     class log
     {
@@ -66,7 +66,7 @@ namespace ws
         level mFilterLevel;
     };
 
-    #define LOG ws::log::Instance()
+    #define LOG ROOT_NAMESPACE::log::Instance()
 }
 
 #include "achieve/log.inl"

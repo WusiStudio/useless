@@ -4,7 +4,7 @@
 
 #include <mutex>
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     class baseObj
     {

@@ -4,7 +4,7 @@
 
 #include "imemory/object.hpp"
 
-class myObject : public ws::object
+class myObject : public ROOT_NAMESPACE::object
 {
 public:
     CREATEFUNC(myObject);

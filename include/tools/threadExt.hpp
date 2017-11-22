@@ -2,7 +2,7 @@
 #ifndef __THREAD_EXT_HPP__
 #define __THREAD_EXT_HPP__
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     //获取当前线程id
     unsigned int PthreadSelf();

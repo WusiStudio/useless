@@ -9,13 +9,13 @@
 #include "tools/log.hpp"
 #include <cassert>
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
 
 #define CREATEFUNC( class )													\
         static class & Create( void )                                       \
             {                                                               \
-                class * result = ( class * )ws::gc::instance ().getObj ( typeid( class ).name () );\
+                class * result = ( class * )ROOT_NAMESPACE::gc::instance ().getObj ( typeid( class ).name () );\
                 if( !result )                                               \
                 {                                                           \
                     result = new class();                                   \
@@ -29,7 +29,7 @@ namespace ws
                                                                             \
                 assert( result );                                           \
                                                                             \
-                ws::gcWorker::autoRelease ( *(baseObj *)result );           \
+                ROOT_NAMESPACE::gcWorker::autoRelease ( *(baseObj *)result );           \
                 return * result;                                            \
             }                                                               \
         virtual const char * realType( void ) override                      \
@@ -38,8 +38,8 @@ namespace ws
             }                                                               \
 
 //当前作用域中启
-#define IMSTACK		ws::gcWorker __FILE_##__LINE__;
-#define IMGCMake	ws::gc::instance().makeCache();
+#define IMSTACK		ROOT_NAMESPACE::gcWorker __FILE_##__LINE__;
+#define IMGCMake	ROOT_NAMESPACE::gc::instance().makeCache();
 
 #define ATTIRBUTE( type, name )                     \
     ATTIRBUTE_D( type, name )                       

@@ -22,10 +22,10 @@ int main( int argc, char ** argv )
 
     myObject & myobject = myObject::Create();
 
-    ws::object * t_object = &myobject;
+    ROOT_NAMESPACE::object * t_object = &myobject;
     LOG.debug( "t_object: {0}, {1}", typeid(t_object).name(), t_object->realType() );
 
-    ws::baseObj * t_baseObject = &myobject;
+    ROOT_NAMESPACE::baseObj * t_baseObject = &myobject;
     LOG.debug( "t_baseObject: {0}, {1}", typeid(t_baseObject).name(), t_baseObject->realType() );
 
     myobject.release();
@@ -75,7 +75,7 @@ int main( int argc, char ** argv )
     LOG.debug("[{0, -7}]", "你吃饭了吗？");
 
 
-    LOG.debug("uuid test: ", ws::uuid().toString());
+    LOG.debug("uuid test: ", ROOT_NAMESPACE::uuid().toString());
 
     LOG.debug("{0, C}", 12345678.901);
 

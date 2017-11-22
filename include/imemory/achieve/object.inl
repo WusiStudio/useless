@@ -2,7 +2,7 @@
 #ifndef __OBJECT_INL__
 #define __OBJECT_INL__
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     //引用加一
     inline void object::retain( void )

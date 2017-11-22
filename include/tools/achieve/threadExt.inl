@@ -8,7 +8,7 @@
     #include <pthread.h>
 #endif
 
-namespace ws
+namespace ROOT_NAMESPACE
 {
     inline unsigned int PthreadSelf()
     {
