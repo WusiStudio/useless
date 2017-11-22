@@ -2,7 +2,7 @@
 #ifndef __STR_EXT_INL__
 #define __STR_EXT_INL__
 
-#include "uuidExt.hpp"
+#include "../uuidExt.hpp"
 
 #if defined(__unix__) || defined(__APPLE__)
 #include <langinfo.h>

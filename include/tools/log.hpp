@@ -69,6 +69,6 @@ namespace ws
     #define LOG ws::log::Instance()
 }
 
-#include "log.inl"
+#include "achieve/log.inl"
 
 #endif //__LOG_HPP__

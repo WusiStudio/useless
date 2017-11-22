@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <mutex>
-#include "strExt.hpp"
+#include "../strExt.hpp"
 
 namespace ws
 {

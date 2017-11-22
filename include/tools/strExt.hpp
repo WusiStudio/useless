@@ -46,4 +46,4 @@ namespace ws
 
 #endif //__STR_EXT_HPP__
 
-#include "strExt.inl"
+#include "achieve/strExt.inl"

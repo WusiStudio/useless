@@ -2,7 +2,7 @@
 #ifndef __GC_INL__
 #define __GC_INL__
 
-#include "object.hpp"
+#include "../object.hpp"
 #include "tools/log.hpp"
 #include "tools/threadExt.hpp"
 
