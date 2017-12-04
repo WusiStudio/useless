@@ -11,6 +11,9 @@ namespace ROOT_NAMESPACE
         CREATEFUNC(appaction);
     public:
         virtual bool init( void ) override;
+    protected:
+        appaction( void );
+        virtual ~appaction( void );
     };
 }
 

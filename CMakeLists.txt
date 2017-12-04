@@ -19,31 +19,39 @@ option(BE_BASED_ON_DIRECT3D_12 "" OFF)
 option(BUILD_UNIT_TESTS "" ON)
 
 #设置编译选项-------------------------------------------
-if(WIN32)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -m64 -std=c++11 -O0 -Wall -g")
+    set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -m64 -std=c++11 -O3 -Wall")
+    add_compile_options(-DCHAR_SET="UTF-8")
+    add_compile_options(-DOS_LINUX)
+elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")  
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")
     set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS}")
     add_compile_options(/source-charset:utf-8)
     add_compile_options(-DCHAR_SET="GBK")
-elseif(APPLE)
+    add_compile_options(-DOS_WINDOWS)
+elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -m64 -O0 -Wall -g")
     set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -m64 -O3 -Wall")
     add_compile_options(-std=c++11)
     add_compile_options(-Wall)
     add_compile_options(-m64)
     add_compile_options(-DCHAR_SET="UTF-8")
-elseif(UNIX)
-    set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -m64 -std=c++11 -O0 -Wall -g")
-    set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -m64 -std=c++11 -O3 -Wall")
-    add_compile_options(-DCHAR_SET="UTF-8")
+    add_compile_options(-DOS_Darwin)
+elseif (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
 endif()
 
 add_compile_options(-DROOT_NAMESPACE=ws)
 
+include_directories(${CMAKE_HOME_DIRECTORY}/deps)
+include_directories(${CMAKE_HOME_DIRECTORY}/include)
+aux_source_directory(src SRCS)
+
+add_library(${PROJECT_NAME} ${SRCS})
+
 if(BUILD_UNIT_TESTS)
     add_subdirectory(tests)
 endif()
-
-add_subdirectory(src)
 
 
 

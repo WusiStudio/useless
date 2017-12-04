@@ -3,6 +3,9 @@
 #include "../include/myObject.h"
 #include "tools/strExt.hpp"
 #include "tools/uuidExt.hpp"
+#include "glm/glm.hpp"
+
+#include "window.h"
 
 void test( void )
 {
@@ -78,6 +81,14 @@ int main( int argc, char ** argv )
     LOG.debug("uuid test: ", ROOT_NAMESPACE::uuid().toString());
 
     LOG.debug("{0, C}", 12345678.901);
+
+
+    ws::window & t_window = ws::window::Create( "HelloWorld", glm::vec2( 800.0f, 600.0f ), glm::vec2( 0.0f, 0.0f ) );
+
+    if( t_window.run() )
+    {
+        LOG.error( "window crash!" );
+    }
 
     return 0;
 }
