@@ -15,7 +15,7 @@
 namespace ROOT_NAMESPACE
 {
 #ifdef OS_WINDOWS
-    struct windowHeader
+    typedef struct
     {
     public:
         HINSTANCE instance;  
@@ -24,16 +24,25 @@ namespace ROOT_NAMESPACE
         static object * findWindow( HWND p_hWnd );
         static LRESULT CALLBACK window_proc(HWND p_hWnd,UINT p_msg,WPARAM p_wParam,LPARAM p_lParam);
         static std::map< HWND, object * > ms_windowList;
-    };
+    }windowHeader;
 
 #endif
+
+    typedef struct
+    {
+        bool    keyInput[256];
+        bool    mouseInput[8];
+        int	    mouseInputX[8];
+	    int	    mouseInputY[8];
+    }windowInput;
 
     class window : public object
     {
         friend LRESULT CALLBACK windowHeader::window_proc(HWND p_hWnd,UINT p_msg,WPARAM p_wParam,LPARAM p_lParam);
         CREATEFUNC(window);
     public:
-        static window & Create( const std::string & p_title, const glm::vec2 & p_size, const glm::vec2 & p_position );
+        static window & Create( const std::string & p_title, const glm::vec2 & p_size, const glm::vec2 & p_position, const bool p_fullScene = false );
+        static glm::vec2 GetSystemResolution( void );
 
         bool run( void );
     protected:
@@ -41,7 +50,7 @@ namespace ROOT_NAMESPACE
         virtual ~window();
 
         virtual bool init( void ) override;
-        virtual bool init( const std::string & p_title, const glm::vec2 & p_size, const glm::vec2 & p_position );
+        virtual bool init( const std::string & p_title, const glm::vec2 & p_size, const glm::vec2 & p_position, const bool p_fullScene = false );
     private:
         std::string m_title;
         glm::vec2 m_size;
@@ -50,6 +59,7 @@ namespace ROOT_NAMESPACE
         bool m_run;
         bool m_active;
         bool m_minimized;
+        bool m_fullScene;
         windowHeader m_header;
     };
 }
