@@ -5,11 +5,11 @@
 namespace ROOT_NAMESPACE
 {
 
-    window & window::Create( const std::string & p_title, const glm::vec2 & p_size, const bool p_fullScene, const bool p_centerInDesktop, const bool p_showCursor )
+    window & window::Create( const std::string & p_title, const glm::ivec2 & p_size, const bool p_fullScene, const bool p_centerInDesktop, const bool p_showCursor )
     {
         window & t_result = Create();
         
-        if( t_result.init( p_title, p_size, glm::vec2(0.0f),  p_fullScene, p_centerInDesktop, p_showCursor ) )
+        if( t_result.init( p_title, p_size, glm::ivec2( 0 ),  p_fullScene, p_centerInDesktop, p_showCursor ) )
         {
             LOG.error( "window init faile!" );
         }
@@ -17,7 +17,7 @@ namespace ROOT_NAMESPACE
         return t_result;
     }
 
-    window & window::Create( const std::string & p_title, const glm::vec2 & p_size, const glm::vec2 & p_position, const bool p_showCursor )
+    window & window::Create( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_showCursor )
     {
         window & t_result = Create();
         
@@ -29,14 +29,57 @@ namespace ROOT_NAMESPACE
         return t_result;
     }
 #ifdef OS_WINDOWS
-    glm::vec2 window::GetSystemResolution( void )
+    glm::ivec2 window::GetSystemResolution( void )
     {
-        glm::vec2 t_result = glm::vec2( 0.0f );
+        glm::ivec2 t_result = glm::ivec2( 0 );
 
         RECT t_desktopRect;
         GetWindowRect( GetDesktopWindow(), &t_desktopRect );
-        t_result = glm::vec2( t_desktopRect.right, t_desktopRect.bottom );
+        t_result = glm::ivec2( t_desktopRect.right, t_desktopRect.bottom );
         return t_result;
+    }
+
+    bool window::setTitle( const std::string & p_title )
+    {
+        if( ::SetWindowTextA( m_header.hWnd, TEXT( p_title.c_str() ) ) )
+        {
+            m_title = p_title;
+            return false;
+        }
+
+        LOG.error( "set window text faild!" );
+        return true;
+    }
+    bool window::setSize( const glm::ivec2 & p_size )
+    {
+        if( ::SetWindowPos( m_header.hWnd, NULL, 0, 0, p_size.x, p_size.y, SWP_NOMOVE | SWP_NOZORDER  ) )
+        {
+            return false;
+        }
+
+        LOG.error( "set window size faild!" );
+        return true;
+    }
+    bool window::setPosition( const glm::ivec2 & p_position )
+    {
+        if( ::SetWindowPos( m_header.hWnd, NULL, p_position.x, p_position.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER  ) )
+        {
+            return false;
+        }
+
+        LOG.error( "set window pos faild!" );
+        return true;
+    }
+
+    bool window::setCursorPos( const glm::ivec2 & p_cursorPos )
+    {
+        if( ::SetCursorPos( p_cursorPos.x, p_cursorPos.y ) )
+        {
+            return false;
+        }
+
+        LOG.error( "set cursor pos faild!" );
+        return true;
     }
 
     const bool window::processEvent( void )
@@ -68,10 +111,27 @@ namespace ROOT_NAMESPACE
     
 #endif
 
+    const std::string & window::getTitle( void ) const
+    {
+        return m_title;
+    }
+    const glm::ivec2 & window::getSize( void ) const
+    {
+        return m_size;
+    }
+    const glm::ivec2 & window::getPosition( void ) const
+    {
+        return m_position;
+    }
+    const glm::ivec2 & window::getCursorPosition( void ) const
+    {
+        return m_cursorPosition;
+    }
+
     bool window::run( void )
     {
         m_run = true;
-#ifdef OS_WINDOWS
+        
         while ( m_run )
         {
             if( processEvent() )
@@ -84,6 +144,30 @@ namespace ROOT_NAMESPACE
             {
                 m_run = false;
                 break;
+            }
+
+            if( m_input.keyInput[KEY_N] )
+            {
+                if( setTitle( "haha" ) )
+                {
+                    LOG.error( "setTitle faild" );
+                }
+            }
+
+            if( m_input.keyInput[KEY_R] )
+            {
+                if( setSize( glm::ivec2( 800, 600 ) ) )
+                {
+                    LOG.error( "setSize faild" );
+                }
+            }
+
+            if( m_input.keyInput[KEY_T] )
+            {
+                if( setSize( glm::ivec2( 1024, 768 ) ) )
+                {
+                    LOG.error( "setSize faild" );
+                }
             }
 
             if( m_input.keyInput[KEY_F] )
@@ -103,11 +187,10 @@ namespace ROOT_NAMESPACE
 
             consumeInput();
         }
-#endif
         return false;
     }
 
-    bool window::init( const std::string & p_title, const glm::vec2 & p_size, const glm::vec2 & p_position, const bool p_fullScene, const bool p_centerInDesktop, const bool p_showCursor )
+    bool window::init( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_fullScene, const bool p_centerInDesktop, const bool p_showCursor )
     {
         m_fullScene = p_fullScene;
         m_centerInDesktop = p_centerInDesktop;
@@ -164,8 +247,8 @@ namespace ROOT_NAMESPACE
         {                      
             memset( &t_dmScreenSettings, 0, sizeof(t_dmScreenSettings) );   // 确保内存清空为零
             t_dmScreenSettings.dmSize = sizeof( t_dmScreenSettings );       // Devmode 结构的大小
-            t_dmScreenSettings.dmPelsWidth    = (int)p_size.x;              // 所选屏幕宽度
-            t_dmScreenSettings.dmPelsHeight   = (int)p_size.y;              // 所选屏幕高度
+            t_dmScreenSettings.dmPelsWidth    = (glm::int32)p_size.x;       // 所选屏幕宽度
+            t_dmScreenSettings.dmPelsHeight   = (glm::int32)p_size.y;       // 所选屏幕高度
             t_dmScreenSettings.dmBitsPerPel   = 32;                         // 每象素所选的色彩深度
             t_dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
             // 尝试设置显示模式并返回结果。注: CDS_FULLSCREEN 移去了状态条。
@@ -204,9 +287,9 @@ namespace ROOT_NAMESPACE
 
         if( !m_fullScene && m_centerInDesktop )
         {
-            glm::vec2 t_systemResolution = GetSystemResolution();
-            const int t_offsetX = ( (int)t_systemResolution.x - ( t_WindowRect.right - t_WindowRect.left ) ) / 2 - t_WindowRect.left;
-            const int t_offsetY = ( (int)t_systemResolution.y - ( t_WindowRect.bottom - t_WindowRect.top ) ) / 2 - t_WindowRect.top;
+            glm::ivec2 t_systemResolution = GetSystemResolution();
+            const glm::int32 t_offsetX = ( (glm::int32)t_systemResolution.x - ( t_WindowRect.right - t_WindowRect.left ) ) / 2 - t_WindowRect.left;
+            const glm::int32 t_offsetY = ( (glm::int32)t_systemResolution.y - ( t_WindowRect.bottom - t_WindowRect.top ) ) / 2 - t_WindowRect.top;
 
             t_WindowRect.left += t_offsetX;
             t_WindowRect.right += t_offsetX;
@@ -275,9 +358,8 @@ namespace ROOT_NAMESPACE
         m_centerInDesktop = true;
         m_showCursor = false;
         m_title = "";
-        m_size = glm::vec2( 0.0f );
-        m_position = glm::vec2( 0.0f );
-        m_tick = NULL;
+        m_size = glm::ivec2( 0 );
+        m_position = glm::ivec2( 0 );
 
         memset( &m_input, 0, sizeof( m_input ) );
 
@@ -344,6 +426,7 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
+//
 #ifdef OS_WINDOWS
 
     std::map< HWND, object * > windowHeader::ms_windowList;
@@ -393,29 +476,29 @@ namespace ROOT_NAMESPACE
             }
             case WM_SIZE:
             {
-                t_window->m_size = glm::vec2( (int) LOWORD( p_lParam ), (int) HIWORD( p_lParam ) );
-                LOG.debug( "window size changed: vec2({0}, {1})", t_window->m_size.x, t_window->m_size.y );
+                t_window->m_size = glm::ivec2( (glm::int32) LOWORD( p_lParam ), (glm::int32) HIWORD( p_lParam ) );
+                LOG.debug( "window size changed: ivec2({0}, {1})", t_window->m_size.x, t_window->m_size.y );
                 return 0;
             }
             case WM_MOVE:
             {
-                t_window->m_position = glm::vec2( (int)(short) LOWORD( p_lParam ), (int)(short) HIWORD( p_lParam ) );
-                LOG.debug( "window position changed: vec2({0}, {1})", t_window->m_position.x, t_window->m_position.y );
+                t_window->m_position = glm::ivec2( (glm::int32)(short) LOWORD( p_lParam ), (glm::int32)(short) HIWORD( p_lParam ) );
+                LOG.debug( "window position changed: ivec2({0}, {1})", t_window->m_position.x, t_window->m_position.y );
                 return 0;
             }
             case WM_KEYDOWN:
             {
-                if ( (int)p_wParam >= 0 && (int)p_wParam < 256 )
+                if ( (glm::int32)p_wParam >= 0 && (glm::int32)p_wParam < 256 )
                 {
-                    if ( 	(int)p_wParam != KEY_SHIFT_LEFT &&
-                            (int)p_wParam != KEY_CTRL_LEFT &&
-                            (int)p_wParam != KEY_ALT_LEFT &&
-                            (int)p_wParam != KEY_CURSOR_UP &&
-                            (int)p_wParam != KEY_CURSOR_DOWN &&
-                            (int)p_wParam != KEY_CURSOR_LEFT &&
-                            (int)p_wParam != KEY_CURSOR_RIGHT )
+                    if ( 	(glm::int32)p_wParam != KEY_SHIFT_LEFT &&
+                            (glm::int32)p_wParam != KEY_CTRL_LEFT &&
+                            (glm::int32)p_wParam != KEY_ALT_LEFT &&
+                            (glm::int32)p_wParam != KEY_CURSOR_UP &&
+                            (glm::int32)p_wParam != KEY_CURSOR_DOWN &&
+                            (glm::int32)p_wParam != KEY_CURSOR_LEFT &&
+                            (glm::int32)p_wParam != KEY_CURSOR_RIGHT )
                     {
-                        t_window->m_input.keyInput[(int)p_wParam] = true;
+                        t_window->m_input.keyInput[(glm::int32)p_wParam] = true;
                     }
                 }
                 break;
@@ -424,14 +507,14 @@ namespace ROOT_NAMESPACE
             {
                 t_window->m_input.mouseInput[MOUSE_LEFT] = true;
                 t_window->m_input.mouseInputX[MOUSE_LEFT] = LOWORD( p_lParam );
-                t_window->m_input.mouseInputY[MOUSE_LEFT] = (int)t_window->m_size.y - HIWORD( p_lParam );
+                t_window->m_input.mouseInputY[MOUSE_LEFT] = (glm::int32)t_window->m_size.y - HIWORD( p_lParam );
                 break;
             }
             case WM_RBUTTONDOWN:
             {
                 t_window->m_input.mouseInput[MOUSE_RIGHT] = true;
                 t_window->m_input.mouseInputX[MOUSE_RIGHT] = LOWORD( p_lParam );
-                t_window->m_input.mouseInputY[MOUSE_RIGHT] = (int)t_window->m_size.y - HIWORD( p_lParam );
+                t_window->m_input.mouseInputY[MOUSE_RIGHT] = (glm::int32)t_window->m_size.y - HIWORD( p_lParam );
                 break;
             }
             case WM_MOUSEMOVE:
