@@ -83,7 +83,7 @@ int main( int argc, char ** argv )
     LOG.debug("{0, C}", 12345678.901);
 
 
-    ws::window & t_window = ws::window::Create( "HelloWorld", glm::vec2( 800.0f, 600.0f ), glm::vec2( 0.0f, 0.0f ), false );
+    ws::window & t_window = ws::window::Create( "HelloWorld", glm::vec2( 800.0f, 600.0f ), false );
 
     if( t_window.run() )
     {
