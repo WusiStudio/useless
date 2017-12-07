@@ -87,7 +87,7 @@ namespace ROOT_NAMESPACE
         friend LRESULT CALLBACK windowHeader::window_proc(HWND p_hWnd,UINT p_msg,WPARAM p_wParam,LPARAM p_lParam);
         CREATEFUNC(window);
     public:
-        static window & Create( const std::string & p_title, const glm::ivec2 & p_size, const bool p_fullScene = false, const bool p_centerInDesktop = true, const bool p_showCursor = false );
+        static window & Create( const std::string & p_title, const glm::ivec2 & p_size, const bool p_fullScreenState = false, const bool p_centerInDesktop = true, const bool p_showCursor = false );
         static window & Create( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_showCursor = true );
         static glm::ivec2 GetSystemResolution( void );
 
@@ -96,11 +96,13 @@ namespace ROOT_NAMESPACE
         bool setSize( const glm::ivec2 & p_size );
         bool setPosition( const glm::ivec2 & p_position );
         bool setCursorPos( const glm::ivec2 & p_cursorPos );
+        bool setFullScreenState( const bool p_fullScreenState );
 
         const std::string & getTitle( void ) const;
         const glm::ivec2 & getSize( void ) const;
         const glm::ivec2 & getPosition( void ) const;
         const glm::ivec2 & getCursorPosition( void ) const;
+        bool getFullScreenState( void ) const;
 
 
     protected:
@@ -108,7 +110,7 @@ namespace ROOT_NAMESPACE
         virtual ~window();
 
         virtual bool init( void ) override;
-        virtual bool init( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_fullScene = false, const bool p_centerInDesktop = false, const bool p_showCursor = true );
+        virtual bool init( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_fullScreenState = false, const bool p_centerInDesktop = false, const bool p_showCursor = true );
 
         virtual bool destory( void ) override;
         
@@ -125,7 +127,7 @@ namespace ROOT_NAMESPACE
         bool m_run;
         bool m_active;
         bool m_minimized;
-        bool m_fullScene;
+        bool m_fullScreenState;
         bool m_centerInDesktop;
         bool m_showCursor;
         windowHeader m_header;

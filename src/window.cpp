@@ -5,11 +5,11 @@
 namespace ROOT_NAMESPACE
 {
 
-    window & window::Create( const std::string & p_title, const glm::ivec2 & p_size, const bool p_fullScene, const bool p_centerInDesktop, const bool p_showCursor )
+    window & window::Create( const std::string & p_title, const glm::ivec2 & p_size, const bool p_fullScreenState, const bool p_centerInDesktop, const bool p_showCursor )
     {
         window & t_result = Create();
         
-        if( t_result.init( p_title, p_size, glm::ivec2( 0 ),  p_fullScene, p_centerInDesktop, p_showCursor ) )
+        if( t_result.init( p_title, p_size, glm::ivec2( 0 ),  p_fullScreenState, p_centerInDesktop, p_showCursor ) )
         {
             LOG.error( "window init faile!" );
         }
@@ -52,7 +52,21 @@ namespace ROOT_NAMESPACE
     }
     bool window::setSize( const glm::ivec2 & p_size )
     {
-        if( ::SetWindowPos( m_header.hWnd, NULL, 0, 0, p_size.x, p_size.y, SWP_NOMOVE | SWP_NOZORDER  ) )
+        DWORD       t_dwExStyle;                    // 扩展窗口风格
+        DWORD       t_dwStyle;                      // 窗口风格
+        RECT        t_WindowRect;                   // 窗口显示区域
+
+        t_dwExStyle = ::GetWindowLong( m_header.hWnd, GWL_EXSTYLE );
+        t_dwStyle = ::GetWindowLong( m_header.hWnd, GWL_STYLE ); 
+
+        t_WindowRect.left = 0;
+        t_WindowRect.right = p_size.x;
+        t_WindowRect.top = 0;
+        t_WindowRect.bottom = p_size.y;
+
+        AdjustWindowRectEx( &t_WindowRect, t_dwStyle, false, t_dwExStyle);  // 调整窗口达到真正要求的大小
+
+        if( ::SetWindowPos( m_header.hWnd, NULL, 0, 0, t_WindowRect.right - t_WindowRect.left, t_WindowRect.bottom - t_WindowRect.top, SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW  ) )
         {
             return false;
         }
@@ -62,6 +76,21 @@ namespace ROOT_NAMESPACE
     }
     bool window::setPosition( const glm::ivec2 & p_position )
     {
+
+        DWORD       t_dwExStyle;                    // 扩展窗口风格
+        DWORD       t_dwStyle;                      // 窗口风格
+        RECT        t_WindowRect;                   // 窗口显示区域
+
+        t_dwExStyle = ::GetWindowLong( m_header.hWnd, GWL_EXSTYLE );
+        t_dwStyle = ::GetWindowLong( m_header.hWnd, GWL_STYLE ); 
+
+        t_WindowRect.left = p_position.x;
+        t_WindowRect.right = 0;
+        t_WindowRect.top = p_position.y;
+        t_WindowRect.bottom = 0;
+
+        AdjustWindowRectEx( &t_WindowRect, t_dwStyle, false, t_dwExStyle);  // 调整窗口达到真正要求的大小
+
         if( ::SetWindowPos( m_header.hWnd, NULL, p_position.x, p_position.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER  ) )
         {
             return false;
@@ -80,6 +109,28 @@ namespace ROOT_NAMESPACE
 
         LOG.error( "set cursor pos faild!" );
         return true;
+    }
+
+    bool window::setFullScreenState( const bool p_fullScreenState )
+    {
+        if( p_fullScreenState == m_fullScreenState )
+        {
+            return false;
+        }
+
+        if( destory() )
+        {
+            LOG.error("destory window falid!");
+            return true;
+        }
+
+        if( init( m_title, m_size, m_position, p_fullScreenState, m_centerInDesktop, m_showCursor ) )
+        {
+            LOG.error("change fullScene reopen window falid!");
+            return true;
+        }
+
+        return false;
     }
 
     const bool window::processEvent( void )
@@ -128,6 +179,11 @@ namespace ROOT_NAMESPACE
         return m_cursorPosition;
     }
 
+    bool window::getFullScreenState( void ) const
+    {
+        return m_fullScreenState;
+    }
+
     bool window::run( void )
     {
         m_run = true;
@@ -172,15 +228,7 @@ namespace ROOT_NAMESPACE
 
             if( m_input.keyInput[KEY_F] )
             {
-                destory();
-                
-                m_fullScene = !m_fullScene;
-
-                if( init( m_title, m_size, m_position, m_fullScene, m_centerInDesktop, m_showCursor ) )
-                {
-                    LOG.error("change fullScene reopen window falid!");
-                    break;
-                }
+                setFullScreenState( !m_fullScreenState );
             }
 
             Sleep( 10 );
@@ -190,9 +238,9 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
-    bool window::init( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_fullScene, const bool p_centerInDesktop, const bool p_showCursor )
+    bool window::init( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_fullScreenState, const bool p_centerInDesktop, const bool p_showCursor )
     {
-        m_fullScene = p_fullScene;
+        m_fullScreenState = p_fullScreenState;
         m_centerInDesktop = p_centerInDesktop;
         m_showCursor = p_showCursor;
 
@@ -236,14 +284,14 @@ namespace ROOT_NAMESPACE
             t_dmScreenSettings.dmDisplayFrequency = 120;
             t_dmScreenSettings.dmFields = DM_DISPLAYFLAGS | DM_DISPLAYFREQUENCY;
 
-            if( ChangeDisplaySettingsExA( t_displayDevice, &t_dmScreenSettings, NULL, CDS_FULLSCREEN, NULL ) != DISP_CHANGE_SUCCESSFUL )
+            if( ChangeDisplaySettingsExA( t_displayDevice, &t_dmScreenSettings, NULL, NULL, NULL ) != DISP_CHANGE_SUCCESSFUL )
             {
                 LOG.warning("try change display frequency is faild!");
             }
         }
 
         //尝试启用全屏模式
-        if( m_fullScene )
+        if( m_fullScreenState )
         {                      
             memset( &t_dmScreenSettings, 0, sizeof(t_dmScreenSettings) );   // 确保内存清空为零
             t_dmScreenSettings.dmSize = sizeof( t_dmScreenSettings );       // Devmode 结构的大小
@@ -255,7 +303,7 @@ namespace ROOT_NAMESPACE
             if ( ChangeDisplaySettingsExA( t_displayDevice, &t_dmScreenSettings, NULL, CDS_FULLSCREEN, NULL ) != DISP_CHANGE_SUCCESSFUL )
             {
                 LOG.warning("try fullscene is faild");
-                m_fullScene = false;
+                m_fullScreenState = false;
             }
         }
 
@@ -271,7 +319,7 @@ namespace ROOT_NAMESPACE
         }
 
         ShowCursor( m_showCursor );                                         // 隐藏或显示鼠标指针
-        if( m_fullScene )
+        if( m_fullScreenState )
         {
             t_dwExStyle = WS_EX_APPWINDOW;                                  // 扩展窗体风格
             t_dwStyle = WS_POPUP;                                           // 窗体风格
@@ -285,7 +333,7 @@ namespace ROOT_NAMESPACE
 
         AdjustWindowRectEx( &t_WindowRect, t_dwStyle, false, t_dwExStyle);  // 调整窗口达到真正要求的大小
 
-        if( !m_fullScene && m_centerInDesktop )
+        if( !m_fullScreenState && m_centerInDesktop )
         {
             glm::ivec2 t_systemResolution = GetSystemResolution();
             const glm::int32 t_offsetX = ( (glm::int32)t_systemResolution.x - ( t_WindowRect.right - t_WindowRect.left ) ) / 2 - t_WindowRect.left;
@@ -354,7 +402,7 @@ namespace ROOT_NAMESPACE
         m_run = false;
         m_active = false;
         m_minimized = false;
-        m_fullScene = false;
+        m_fullScreenState = false;
         m_centerInDesktop = true;
         m_showCursor = false;
         m_title = "";
@@ -376,7 +424,7 @@ namespace ROOT_NAMESPACE
     {
 
 #ifdef OS_WINDOWS
-        if( m_fullScene )
+        if( m_fullScreenState )
         {
             ChangeDisplaySettingsA( NULL, 0 );
 		    ShowCursor( TRUE );
