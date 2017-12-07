@@ -22,7 +22,7 @@ namespace ROOT_NAMESPACE
             LOG.warning( "release does not match retain" );
         }
 
-        if( quote() > 0 || this->destory() )
+        if( quote() > 0 || this->destroy() )
         {
             return;
         }
@@ -36,9 +36,9 @@ namespace ROOT_NAMESPACE
         return baseObj::init();
     }
 
-    inline bool object::destory( void )
+    inline bool object::destroy( void )
     {
-        return baseObj::destory();
+        return baseObj::destroy();
     }
 
     inline object::object ( void )

@@ -22,7 +22,7 @@ namespace ROOT_NAMESPACE
 
         baseObj * getObj( const std::string & p_classId );
 
-        bool destory(void);
+        bool destroy(void);
     private:
 
         std::list< baseObj* >::iterator insertToCacheList( baseObj & p_obj );

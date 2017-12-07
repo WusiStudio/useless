@@ -106,7 +106,7 @@ namespace ROOT_NAMESPACE
         return result;
     }
 
-    inline bool gc::destory(void)
+    inline bool gc::destroy(void)
     {
         //清空三级缓存
         for( auto & cache : mCaches )
@@ -120,7 +120,7 @@ namespace ROOT_NAMESPACE
             delete obj;
         }
         mObjCacheList.clear();
-        return baseObj::destory ();
+        return baseObj::destroy ();
     }
 
     inline std::list< baseObj* >::iterator gc::insertToCacheList( baseObj & p_obj )

@@ -100,7 +100,7 @@ namespace ROOT_NAMESPACE
 
         virtual bool init( void ) override;
 
-        virtual bool destory( void ) override;
+        virtual bool destroy( void ) override;
 
 		object ( void );
 

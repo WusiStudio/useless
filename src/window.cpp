@@ -118,15 +118,15 @@ namespace ROOT_NAMESPACE
             return false;
         }
 
-        if( destory() )
+        if( destroy() )
         {
-            LOG.error("destory window falid!");
+            LOG.error("falid to destroy window!");
             return true;
         }
 
         if( init( m_title, m_size, m_position, p_fullScreenState, m_centerInDesktop, m_showCursor ) )
         {
-            LOG.error("change fullScene reopen window falid!");
+            LOG.error("falid to change fullScene reopen window!");
             return true;
         }
 
@@ -157,6 +157,70 @@ namespace ROOT_NAMESPACE
         m_input.keyInput[KEY_CURSOR_LEFT]	= GetAsyncKeyState( KEY_CURSOR_LEFT );
         m_input.keyInput[KEY_CURSOR_RIGHT]	= GetAsyncKeyState( KEY_CURSOR_RIGHT );
 
+        return false;
+    }
+
+#elif defined OS_LINUX
+    glm::ivec2 window::GetSystemResolution( void )
+    {
+        return glm::ivec2( 0 );
+    }
+
+    bool window::setTitle( const std::string & p_title )
+    {
+        return false;
+    }
+
+    bool window::setSize( const glm::ivec2 & p_size )
+    {
+        return false;
+    }
+
+    bool window::setPosition( const glm::ivec2 & p_position )
+    {
+        return false;
+    }
+
+    bool window::setCursorPos( const glm::ivec2 & p_cursorPos )
+    {
+        return false;
+    }
+
+    bool window::setFullScreenState( const bool p_fullScreenState )
+    {
+        return false;
+    }
+
+    const bool window::processEvent( void )
+    {
+        glm::int32 t_count = ::XPending( m_header.xDisplay );
+        for ( int i = 0; i < t_count; i++ )
+	    {
+            XEvent t_event;
+            KeySym t_key;
+            ::XNextEvent( m_header.xDisplay, &t_event );
+
+            switch( t_event.type )
+            {
+            case KeyPress:
+                t_key = ::XLookupKeysym( &t_event.xkey, 0 );
+				if ( t_key < 256 || t_key == XK_Escape )
+				{
+					m_input.keyInput[t_key & 255] = true;
+				}
+            break;
+            case DestroyNotify:
+                m_run = false;
+            return true;
+            case ClientMessage:
+                if( (Atom)t_event.xclient.data.l[0] == m_header.xDeleteWindowEvent )
+                {
+                    m_run = false;
+                    return true;
+                }
+            break;
+            }
+        }
         return false;
     }
     
@@ -192,49 +256,49 @@ namespace ROOT_NAMESPACE
         {
             if( processEvent() )
             {
-                LOG.error( "error: process event" );
                 break;
             }
 
             if( m_input.keyInput[KEY_ESCAPE] )
             {
                 m_run = false;
-                break;
+                return false;
             }
 
-            if( m_input.keyInput[KEY_N] )
-            {
-                if( setTitle( "haha" ) )
-                {
-                    LOG.error( "setTitle faild" );
-                }
-            }
+            // if( m_input.keyInput[KEY_N] )
+            // {
+            //     if( setTitle( "haha" ) )
+            //     {
+            //         LOG.error( "setTitle faild" );
+            //     }
+            // }
 
-            if( m_input.keyInput[KEY_R] )
-            {
-                if( setSize( glm::ivec2( 800, 600 ) ) )
-                {
-                    LOG.error( "setSize faild" );
-                }
-            }
+            // if( m_input.keyInput[KEY_R] )
+            // {
+            //     if( setSize( glm::ivec2( 800, 600 ) ) )
+            //     {
+            //         LOG.error( "setSize faild" );
+            //     }
+            // }
 
-            if( m_input.keyInput[KEY_T] )
-            {
-                if( setSize( glm::ivec2( 1024, 768 ) ) )
-                {
-                    LOG.error( "setSize faild" );
-                }
-            }
+            // if( m_input.keyInput[KEY_T] )
+            // {
+            //     if( setSize( glm::ivec2( 1024, 768 ) ) )
+            //     {
+            //         LOG.error( "setSize faild" );
+            //     }
+            // }
 
-            if( m_input.keyInput[KEY_F] )
-            {
-                setFullScreenState( !m_fullScreenState );
-            }
+            // if( m_input.keyInput[KEY_F] )
+            // {
+            //     setFullScreenState( !m_fullScreenState );
+            // }
 
-            Sleep( 10 );
+            usleep( 10000 );
 
             consumeInput();
         }
+
         return false;
     }
 
@@ -380,6 +444,80 @@ namespace ROOT_NAMESPACE
         SetFocus( m_header.hWnd ); 
         // UpdateWindow( m_header.hWnd );
 
+#elif defined OS_LINUX
+        const char * t_displayName = NULL;
+        m_header.xDisplay = ::XOpenDisplay( t_displayName );
+        if( !m_header.xDisplay )
+        {
+            LOG.error("Unable to open X Display.");
+            return true;
+        }
+
+        m_header.xScreen = ::XDefaultScreen( m_header.xDisplay );
+        m_header.xVisual = ::XDefaultVisual( m_header.xDisplay, m_header.xScreen );
+        m_header.xRoot = ::XRootWindow( m_header.xDisplay, m_header.xScreen );
+
+        m_header.xColormap = ::XCreateColormap( m_header.xDisplay, m_header.xRoot, m_header.xVisual, AllocNone );
+
+        const unsigned long t_wamask = CWColormap | CWEventMask | ( p_fullScreenState ? 0 : CWBorderPixel );
+
+        XSetWindowAttributes t_wa;
+        memset( &t_wa, 0, sizeof( t_wa ) );
+        t_wa.colormap = m_header.xColormap;
+        t_wa.border_pixel = 0;
+        t_wa.event_mask = StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask |
+                        KeyPressMask | KeyReleaseMask |
+                        ButtonPressMask | ButtonReleaseMask |
+                        FocusChangeMask | ExposureMask | VisibilityChangeMask |
+                        EnterWindowMask | LeaveWindowMask;
+
+        m_header.xWindow = ::XCreateWindow( 
+                                            m_header.xDisplay,
+                                            m_header.xRoot,
+                                            p_position.x,
+                                            p_position.y,
+                                            p_size.x,
+                                            p_size.y,
+                                            0,
+                                            ::XDefaultDepth( m_header.xDisplay, m_header.xScreen ),
+                                            InputOutput,
+                                            m_header.xVisual,
+                                            t_wamask,
+                                            &t_wa );
+        if( !m_header.xWindow )
+        {
+            LOG.error( "Failed to create window." );
+            return true;
+        }
+
+        // Change the window title.
+        Atom _WM_NAME = ::XInternAtom( m_header.xDisplay, "WM_NAME", false );
+        ::XChangeProperty( m_header.xDisplay, m_header.xWindow, _WM_NAME,
+                            XA_STRING, 8, PropModeReplace,
+                            (const unsigned char *)p_title.c_str(), p_title.size() );
+
+        m_header.xDeleteWindowEvent = ::XInternAtom( m_header.xDisplay, "WM_DELETE_WINDOW", true );
+        ::XSetWMProtocols( m_header.xDisplay, m_header.xWindow, &m_header.xDeleteWindowEvent, 1 );
+        
+
+        XSizeHints * t_hints = ::XAllocSizeHints();
+		t_hints->flags = ( PMinSize | PMaxSize );
+		t_hints->min_width = p_size.x;
+		t_hints->max_width = p_size.x;
+		t_hints->min_height = p_size.y;
+		t_hints->max_height = p_size.y;
+		::XSetWMNormalHints( m_header.xDisplay, m_header.xWindow, t_hints );
+		::XFree( t_hints );
+
+		// First map the window and then center the window on the screen.
+		::XMapRaised( m_header.xDisplay, m_header.xWindow );
+		const int x = 100;
+		const int y = 100;
+		::XMoveResizeWindow( m_header.xDisplay, m_header.xWindow, x, y, p_size.x, p_size.y );
+		XFlush( m_header.xDisplay );
+
+        XMapWindow( m_header.xDisplay, m_header.xWindow );
+
 #endif
         
         return false;
@@ -415,12 +553,20 @@ namespace ROOT_NAMESPACE
         m_header.hInstance = NULL;
         m_header.hWnd = NULL;
         m_header.hDC = NULL;
+#elif defined OS_LINUX
+        m_header.xDisplay = NULL;
+        m_header.xScreen = -1;
+        m_header.xColormap = 0;
+        m_header.xVisual = NULL;
+        m_header.xRoot = 0;
+        m_header.xWindow = 0;
+
 #endif
 
         return false;
     }
 
-    bool window::destory( void )
+    bool window::destroy( void )
     {
 
 #ifdef OS_WINDOWS
@@ -463,7 +609,29 @@ namespace ROOT_NAMESPACE
             }
             m_header.hInstance = NULL;
         }
+#elif defined OS_LINUX
+        if( m_header.xWindow )
+        {
+            ::XUnmapWindow( m_header.xDisplay, m_header.xWindow );
+            ::XDestroyWindow( m_header.xDisplay, m_header.xWindow );
+            m_header.xWindow = 0;
+        }
         
+        if ( m_header.xColormap )
+        {
+            ::XFreeColormap( m_header.xDisplay, m_header.xColormap );
+            m_header.xColormap = 0;
+        }
+
+        if ( m_header.xVisual && m_header.xVisual != ::XDefaultVisual( m_header.xDisplay, m_header.xScreen ) )
+        {
+            ::XFree( m_header.xVisual );
+            m_header.xVisual = NULL;
+        }
+
+        ::XFlush( m_header.xDisplay );
+        ::XCloseDisplay( m_header.xDisplay );
+        m_header.xDisplay = NULL;
 #endif
         return false;
     }

@@ -34,7 +34,7 @@ namespace ROOT_NAMESPACE
         virtual bool init( void );
 
         //放入缓存中时调用
-        virtual bool destory( void );
+        virtual bool destroy( void );
 
     private:
         //缓存频率 频率高的在一级缓存  频率低的被回收

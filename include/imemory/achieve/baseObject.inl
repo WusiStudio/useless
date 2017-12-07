@@ -62,7 +62,7 @@ namespace ROOT_NAMESPACE
     }
 
     //放入缓存中时调用
-    inline bool baseObj::destory( void )
+    inline bool baseObj::destroy( void )
     {
         mQuote = 0;
         return false;

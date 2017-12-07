@@ -27,7 +27,7 @@ namespace ROOT_NAMESPACE
                 continue;
             }
 
-            if( item->destory() )
+            if( item->destroy() )
             {
                 continue;
             }

@@ -14,14 +14,14 @@ bool myObject::init( void )
     return false;
 }
 
-bool myObject::destory( void )
+bool myObject::destroy( void )
 {
-    if( ROOT_NAMESPACE::object::destory() )
+    if( ROOT_NAMESPACE::object::destroy() )
     {
         return true;
     }
 
-    LOG.debug("destory {0}", realType());
+    LOG.debug("destroy {0}", realType());
 
     return false;
 }
