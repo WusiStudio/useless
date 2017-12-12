@@ -16,8 +16,8 @@
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
-// #include <X11/extensions/xf86vmode.h>	// for fullscreen video mode
-// #include <X11/extensions/Xrandr.h>		// for resolution changes
+#include <X11/extensions/xf86vmode.h>	// for fullscreen video mode
+#include <X11/extensions/Xrandr.h>		// for resolution changes
 #endif
 
 namespace ROOT_NAMESPACE
@@ -86,12 +86,17 @@ namespace ROOT_NAMESPACE
     {
     public:
         Display * xDisplay;
-        glm::int32 xScreen;
+        int xScreen;
         Colormap xColormap;
         Visual * xVisual;
         Window xRoot, xWindow;
-        Atom xDeleteWindowEvent;
+        
+        glm::ivec2 xDesktopSize, xWindowSize;
+        float xDesktopRefreshRate, xWindowRefreshRate;
+        
     }windowHeader;
+
+    extern Atom AtomDeleteWindowCmd, AtomWM_NAME, Atom_NET_WM_BYPASS_COMPOSITOR ;
 
     typedef enum
     {
@@ -139,14 +144,22 @@ namespace ROOT_NAMESPACE
         MOUSE_RIGHT		= 1
     } mouseButton;
 
+    static bool ChangeVideoMode_XF86VidMode( Display * p_xDisplay, int p_xScreen, Window p_xWindow,
+								int * p_currentWidth, int * p_currentHeight, float * p_currentRefreshRate,
+								int * p_desiredWidth, int * p_desiredHeight, float * p_desiredRefreshRate );
+
+    static int x_error_handler( Display * p_display, XErrorEvent *p_event );
+
+
+
 #endif
 
     typedef struct
     {
         bool    keyInput[256];
         bool    mouseInput[8];
-        glm::int32	    mouseInputX[8];
-	    glm::int32	    mouseInputY[8];
+        int	    mouseInputX[8];
+	    int	    mouseInputY[8];
     }windowInput;
 
     class window : public object
@@ -158,7 +171,8 @@ namespace ROOT_NAMESPACE
     public:
         static window & Create( const std::string & p_title, const glm::ivec2 & p_size, const bool p_fullScreenState = false, const bool p_centerInDesktop = true, const bool p_showCursor = false );
         static window & Create( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_showCursor = true );
-        static glm::ivec2 GetSystemResolution( void );
+        
+        glm::ivec2 GetSystemResolution( void );
 
         bool run( void );
         bool setTitle( const std::string & p_title );

@@ -111,28 +111,6 @@ namespace ROOT_NAMESPACE
         return true;
     }
 
-    bool window::setFullScreenState( const bool p_fullScreenState )
-    {
-        if( p_fullScreenState == m_fullScreenState )
-        {
-            return false;
-        }
-
-        if( destroy() )
-        {
-            LOG.error("falid to destroy window!");
-            return true;
-        }
-
-        if( init( m_title, m_size, m_position, p_fullScreenState, m_centerInDesktop, m_showCursor ) )
-        {
-            LOG.error("falid to change fullScene reopen window!");
-            return true;
-        }
-
-        return false;
-    }
-
     const bool window::processEvent( void )
     {
         MSG t_msg;
@@ -163,11 +141,23 @@ namespace ROOT_NAMESPACE
 #elif defined OS_LINUX
     glm::ivec2 window::GetSystemResolution( void )
     {
-        return glm::ivec2( 0 );
+        return glm::ivec2( ::XDisplayWidth( m_header.xDisplay, m_header.xScreen ), ::XDisplayHeight( m_header.xDisplay, m_header.xScreen ) );
     }
 
     bool window::setTitle( const std::string & p_title )
     {
+
+        LOG.info("---------------------");
+        if( !(int)AtomWM_NAME )
+        {
+            AtomWM_NAME = ::XInternAtom( m_header.xDisplay, "WM_NAME", false );
+        }
+        
+        LOG.info("---------------------");
+        ::XChangeProperty( m_header.xDisplay, m_header.xWindow, AtomWM_NAME,
+                            XA_STRING, 8, PropModeReplace,
+                            (const unsigned char *)p_title.c_str(), p_title.size() );
+        LOG.info("---------------------");
         return false;
     }
 
@@ -186,14 +176,9 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
-    bool window::setFullScreenState( const bool p_fullScreenState )
-    {
-        return false;
-    }
-
     const bool window::processEvent( void )
     {
-        glm::int32 t_count = ::XPending( m_header.xDisplay );
+        int t_count = ::XPending( m_header.xDisplay );
         for ( int i = 0; i < t_count; i++ )
 	    {
             XEvent t_event;
@@ -209,11 +194,20 @@ namespace ROOT_NAMESPACE
 					m_input.keyInput[t_key & 255] = true;
 				}
             break;
+            case ButtonPress:
+			{
+				m_input.mouseInput[t_event.xbutton.button] = true;
+				m_input.mouseInputX[t_event.xbutton.button] = t_event.xbutton.x;
+				m_input.mouseInputY[t_event.xbutton.button] = t_event.xbutton.y;
+
+                LOG.info( "mouse button click: \\{{0}, {1}\\}", t_event.xbutton.x, t_event.xbutton.y );
+                break;
+			}
             case DestroyNotify:
                 m_run = false;
             return true;
             case ClientMessage:
-                if( (Atom)t_event.xclient.data.l[0] == m_header.xDeleteWindowEvent )
+                if( (Atom)t_event.xclient.data.l[0] == AtomDeleteWindowCmd )
                 {
                     m_run = false;
                     return true;
@@ -225,6 +219,28 @@ namespace ROOT_NAMESPACE
     }
     
 #endif
+
+    bool window::setFullScreenState( const bool p_fullScreenState )
+    {
+        if( p_fullScreenState == m_fullScreenState )
+        {
+            return false;
+        }
+
+        if( destroy() )
+        {
+            LOG.error("falid to destroy window!");
+            return true;
+        }
+
+        if( init( m_title, m_size, m_position, p_fullScreenState, m_centerInDesktop, m_showCursor ) )
+        {
+            LOG.error("falid to change fullScene reopen window!");
+            return true;
+        }
+
+        return false;
+    }
 
     const std::string & window::getTitle( void ) const
     {
@@ -265,34 +281,34 @@ namespace ROOT_NAMESPACE
                 return false;
             }
 
-            // if( m_input.keyInput[KEY_N] )
-            // {
-            //     if( setTitle( "haha" ) )
-            //     {
-            //         LOG.error( "setTitle faild" );
-            //     }
-            // }
+            if( m_input.keyInput[KEY_N] )
+            {
+                if( setTitle( "haha" ) )
+                {
+                    LOG.error( "setTitle faild" );
+                }
+            }
 
-            // if( m_input.keyInput[KEY_R] )
-            // {
-            //     if( setSize( glm::ivec2( 800, 600 ) ) )
-            //     {
-            //         LOG.error( "setSize faild" );
-            //     }
-            // }
+            if( m_input.keyInput[KEY_R] )
+            {
+                if( setSize( glm::ivec2( 800, 600 ) ) )
+                {
+                    LOG.error( "setSize faild" );
+                }
+            }
 
-            // if( m_input.keyInput[KEY_T] )
-            // {
-            //     if( setSize( glm::ivec2( 1024, 768 ) ) )
-            //     {
-            //         LOG.error( "setSize faild" );
-            //     }
-            // }
+            if( m_input.keyInput[KEY_T] )
+            {
+                if( setSize( glm::ivec2( 1024, 768 ) ) )
+                {
+                    LOG.error( "setSize faild" );
+                }
+            }
 
-            // if( m_input.keyInput[KEY_F] )
-            // {
-            //     setFullScreenState( !m_fullScreenState );
-            // }
+            if( m_input.keyInput[KEY_F] )
+            {
+                setFullScreenState( !m_fullScreenState );
+            }
 
             usleep( 10000 );
 
@@ -359,8 +375,8 @@ namespace ROOT_NAMESPACE
         {                      
             memset( &t_dmScreenSettings, 0, sizeof(t_dmScreenSettings) );   // 确保内存清空为零
             t_dmScreenSettings.dmSize = sizeof( t_dmScreenSettings );       // Devmode 结构的大小
-            t_dmScreenSettings.dmPelsWidth    = (glm::int32)p_size.x;       // 所选屏幕宽度
-            t_dmScreenSettings.dmPelsHeight   = (glm::int32)p_size.y;       // 所选屏幕高度
+            t_dmScreenSettings.dmPelsWidth    = (int)p_size.x;              // 所选屏幕宽度
+            t_dmScreenSettings.dmPelsHeight   = (int)p_size.y;              // 所选屏幕高度
             t_dmScreenSettings.dmBitsPerPel   = 32;                         // 每象素所选的色彩深度
             t_dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
             // 尝试设置显示模式并返回结果。注: CDS_FULLSCREEN 移去了状态条。
@@ -377,7 +393,7 @@ namespace ROOT_NAMESPACE
         t_lpDevMode.dmSize = sizeof( DEVMODEA );
         t_lpDevMode.dmDriverExtra = 0;
 
-        if ( EnumDisplaySettingsA( t_displayDevice, ENUM_CURRENT_SETTINGS, &t_lpDevMode ) != FALSE )
+        if ( EnumDisplaySettingsA( t_displayDevice, ENUM_CURRENT_SETTINGS, &t_lpDevMode ) != false )
         {
             LOG.debug( "windowRefreshRate: ", (float)t_lpDevMode.dmDisplayFrequency );
         }
@@ -400,8 +416,8 @@ namespace ROOT_NAMESPACE
         if( !m_fullScreenState && m_centerInDesktop )
         {
             glm::ivec2 t_systemResolution = GetSystemResolution();
-            const glm::int32 t_offsetX = ( (glm::int32)t_systemResolution.x - ( t_WindowRect.right - t_WindowRect.left ) ) / 2 - t_WindowRect.left;
-            const glm::int32 t_offsetY = ( (glm::int32)t_systemResolution.y - ( t_WindowRect.bottom - t_WindowRect.top ) ) / 2 - t_WindowRect.top;
+            const int t_offsetX = ( (int)t_systemResolution.x - ( t_WindowRect.right - t_WindowRect.left ) ) / 2 - t_WindowRect.left;
+            const int t_offsetY = ( (int)t_systemResolution.y - ( t_WindowRect.bottom - t_WindowRect.top ) ) / 2 - t_WindowRect.top;
 
             t_WindowRect.left += t_offsetX;
             t_WindowRect.right += t_offsetX;
@@ -445,6 +461,9 @@ namespace ROOT_NAMESPACE
         // UpdateWindow( m_header.hWnd );
 
 #elif defined OS_LINUX
+
+        ::XSetErrorHandler( x_error_handler );
+
         const char * t_displayName = NULL;
         m_header.xDisplay = ::XOpenDisplay( t_displayName );
         if( !m_header.xDisplay )
@@ -456,6 +475,27 @@ namespace ROOT_NAMESPACE
         m_header.xScreen = ::XDefaultScreen( m_header.xDisplay );
         m_header.xVisual = ::XDefaultVisual( m_header.xDisplay, m_header.xScreen );
         m_header.xRoot = ::XRootWindow( m_header.xDisplay, m_header.xScreen );
+
+
+        LOG.debug( "m_header.xDisplay: {0}, m_header.xScreen: {1}, m_header.xVisual: {2}, m_header.xRoot: {3}", m_header.xDisplay, m_header.xScreen, m_header.xVisual, m_header.xRoot );
+
+        m_header.xWindowSize = p_size;
+        m_header.xWindowRefreshRate = 120.0f;
+        if( m_fullScreenState )
+        {
+            ChangeVideoMode_XF86VidMode( m_header.xDisplay, m_header.xScreen, m_header.xRoot, 
+                                            &m_header.xDesktopSize.x, &m_header.xDesktopSize.y, &m_header.xDesktopRefreshRate,
+                                            &m_header.xWindowSize.x, &m_header.xWindowSize.y, &m_header.xWindowRefreshRate );
+            m_header.xWindowSize = p_size;
+
+            LOG.info("m_header.xWindowSize: \\{{0}, {1}\\}", m_header.xWindowSize.x, m_header.xWindowSize.y);
+        }else{
+            ChangeVideoMode_XF86VidMode( m_header.xDisplay, m_header.xScreen, m_header.xRoot, 
+                                            &m_header.xDesktopSize.x, &m_header.xDesktopSize.y, &m_header.xDesktopRefreshRate,
+									        NULL, NULL, NULL );
+
+            m_header.xWindowRefreshRate = m_header.xDesktopRefreshRate;
+        }
 
         m_header.xColormap = ::XCreateColormap( m_header.xDisplay, m_header.xRoot, m_header.xVisual, AllocNone );
 
@@ -471,13 +511,15 @@ namespace ROOT_NAMESPACE
                         FocusChangeMask | ExposureMask | VisibilityChangeMask |
                         EnterWindowMask | LeaveWindowMask;
 
+        LOG.info("--------------------------------A");
+
         m_header.xWindow = ::XCreateWindow( 
                                             m_header.xDisplay,
                                             m_header.xRoot,
                                             p_position.x,
                                             p_position.y,
-                                            p_size.x,
-                                            p_size.y,
+                                            m_header.xWindowSize.x,
+                                            m_header.xWindowSize.y,
                                             0,
                                             ::XDefaultDepth( m_header.xDisplay, m_header.xScreen ),
                                             InputOutput,
@@ -490,33 +532,84 @@ namespace ROOT_NAMESPACE
             return true;
         }
 
-        // Change the window title.
-        Atom _WM_NAME = ::XInternAtom( m_header.xDisplay, "WM_NAME", false );
-        ::XChangeProperty( m_header.xDisplay, m_header.xWindow, _WM_NAME,
-                            XA_STRING, 8, PropModeReplace,
-                            (const unsigned char *)p_title.c_str(), p_title.size() );
 
-        m_header.xDeleteWindowEvent = ::XInternAtom( m_header.xDisplay, "WM_DELETE_WINDOW", true );
-        ::XSetWMProtocols( m_header.xDisplay, m_header.xWindow, &m_header.xDeleteWindowEvent, 1 );
+        LOG.debug("xWindow: ", m_header.xWindow );
+
         
 
-        XSizeHints * t_hints = ::XAllocSizeHints();
-		t_hints->flags = ( PMinSize | PMaxSize );
-		t_hints->min_width = p_size.x;
-		t_hints->max_width = p_size.x;
-		t_hints->min_height = p_size.y;
-		t_hints->max_height = p_size.y;
-		::XSetWMNormalHints( m_header.xDisplay, m_header.xWindow, t_hints );
-		::XFree( t_hints );
+        // Change the window title.
+        setTitle( p_title );
 
-		// First map the window and then center the window on the screen.
-		::XMapRaised( m_header.xDisplay, m_header.xWindow );
-		const int x = 100;
-		const int y = 100;
-		::XMoveResizeWindow( m_header.xDisplay, m_header.xWindow, x, y, p_size.x, p_size.y );
-		XFlush( m_header.xDisplay );
+        LOG.info("--------------------------------B");
 
-        XMapWindow( m_header.xDisplay, m_header.xWindow );
+        
+        if( !(int)AtomDeleteWindowCmd )
+        {
+            AtomDeleteWindowCmd = ::XInternAtom( m_header.xDisplay, "WM_DELETE_WINDOW", true );
+            ::XSetWMProtocols( m_header.xDisplay, m_header.xWindow, &AtomDeleteWindowCmd, 1 );
+        }
+        
+        LOG.info("--------------------------------C");
+
+        if( p_fullScreenState )
+        {
+            // Bypass the compositor in fullscreen mode.
+            const unsigned long bypass = 1;
+            if( !(int)Atom_NET_WM_BYPASS_COMPOSITOR )
+            {
+                
+                Atom_NET_WM_BYPASS_COMPOSITOR = ::XInternAtom( m_header.xDisplay, "_NET_WM_BYPASS_COMPOSITOR", false );
+            }
+            ::XChangeProperty( m_header.xDisplay, m_header.xWindow, Atom_NET_WM_BYPASS_COMPOSITOR,
+                                XA_CARDINAL, 32, PropModeReplace, (const unsigned char*)&bypass, 1 );
+
+            LOG.info("--------------------------------D");
+
+            // Completely dissasociate window from window manager.
+            XSetWindowAttributes attributes;
+            attributes.override_redirect = false;
+            ::XChangeWindowAttributes( m_header.xDisplay, m_header.xWindow, CWOverrideRedirect, &attributes );
+
+
+             LOG.info("--------------------------------E");
+
+            // Make the window visible.
+            ::XMapRaised( m_header.xDisplay, m_header.xWindow );
+            ::XMoveResizeWindow( m_header.xDisplay, m_header.xWindow, 0, 0, m_header.xDesktopSize.x, m_header.xDesktopSize.y );
+            ::XFlush( m_header.xDisplay );
+
+             LOG.info("--------------------------------F");
+
+            // Grab mouse and keyboard input now that the window is disassociated from the window manager.
+            ::XGrabPointer( m_header.xDisplay, m_header.xWindow, true, 0, GrabModeAsync, GrabModeAsync, m_header.xWindow, 0L, CurrentTime );
+            ::XGrabKeyboard( m_header.xDisplay, m_header.xWindow, true, GrabModeAsync, GrabModeAsync, CurrentTime );
+
+             LOG.info("--------------------------------G");
+        }else
+        {
+            XSizeHints * t_hints = ::XAllocSizeHints();
+            t_hints->flags = ( PMinSize | PMaxSize );
+            t_hints->min_width = m_header.xWindowSize.x;
+            t_hints->max_width = m_header.xWindowSize.x;
+            t_hints->min_height = m_header.xWindowSize.y;
+            t_hints->max_height = m_header.xWindowSize.y;
+            ::XSetWMNormalHints( m_header.xDisplay, m_header.xWindow, t_hints );
+            ::XFree( t_hints );
+
+            // First map the window and then center the window on the screen.
+            ::XMapRaised( m_header.xDisplay, m_header.xWindow );
+
+            int t_window_pos_x = p_position.x;
+            int t_window_pos_y = p_position.y;
+
+            if( p_centerInDesktop )
+            {
+                t_window_pos_x = ( m_header.xDesktopSize.x - m_header.xWindowSize.x ) / 2;
+                t_window_pos_y = ( m_header.xDesktopSize.y - m_header.xWindowSize.y ) / 2;
+            }
+            ::XMoveResizeWindow( m_header.xDisplay, m_header.xWindow, t_window_pos_x, t_window_pos_y, m_header.xWindowSize.x, m_header.xWindowSize.y );
+            ::XFlush( m_header.xDisplay );
+        }
 
 #endif
         
@@ -573,7 +666,7 @@ namespace ROOT_NAMESPACE
         if( m_fullScreenState )
         {
             ChangeDisplaySettingsA( NULL, 0 );
-		    ShowCursor( TRUE );
+		    ShowCursor( true );
         }
 
         if( m_header.hDC )
@@ -610,6 +703,17 @@ namespace ROOT_NAMESPACE
             m_header.hInstance = NULL;
         }
 #elif defined OS_LINUX
+
+        if( m_fullScreenState )
+        {
+            ChangeVideoMode_XF86VidMode( m_header.xDisplay, m_header.xScreen, m_header.xRoot,
+									NULL, NULL, NULL,
+									&m_header.xDesktopSize.x, &m_header.xDesktopSize.y, &m_header.xDesktopRefreshRate );
+
+            XUngrabPointer( m_header.xDisplay, CurrentTime );
+            XUngrabKeyboard( m_header.xDisplay, CurrentTime );
+        }
+
         if( m_header.xWindow )
         {
             ::XUnmapWindow( m_header.xDisplay, m_header.xWindow );
@@ -632,6 +736,7 @@ namespace ROOT_NAMESPACE
         ::XFlush( m_header.xDisplay );
         ::XCloseDisplay( m_header.xDisplay );
         m_header.xDisplay = NULL;
+
 #endif
         return false;
     }
@@ -670,9 +775,9 @@ namespace ROOT_NAMESPACE
         {
             case WM_ACTIVATE:
             {
-                t_window->m_active = LOWORD( p_wParam ) != WA_INACTIVE;
-                t_window->m_minimized = (bool)HIWORD( p_wParam );
-                LOG.debug( "window active state changed: {0} {1}", t_window->m_active, t_window->m_minimized );
+                t_m_header.m_active = LOWORD( p_wParam ) != WA_INACTIVE;
+                t_m_header.m_minimized = (bool)HIWORD( p_wParam );
+                LOG.debug( "window active state changed: {0} {1}", t_m_header.m_active, t_m_header.m_minimized );
                 return 0;
             }  
             case WM_SYSCOMMAND:
@@ -692,56 +797,145 @@ namespace ROOT_NAMESPACE
             }
             case WM_SIZE:
             {
-                t_window->m_size = glm::ivec2( (glm::int32) LOWORD( p_lParam ), (glm::int32) HIWORD( p_lParam ) );
-                LOG.debug( "window size changed: ivec2({0}, {1})", t_window->m_size.x, t_window->m_size.y );
+                t_m_header.m_size = glm::ivec2( (int) LOWORD( p_lParam ), (int) HIWORD( p_lParam ) );
+                LOG.debug( "window size changed: ivec2({0}, {1})", t_m_header.m_size.x, t_m_header.m_size.y );
                 return 0;
             }
             case WM_MOVE:
             {
-                t_window->m_position = glm::ivec2( (glm::int32)(short) LOWORD( p_lParam ), (glm::int32)(short) HIWORD( p_lParam ) );
-                LOG.debug( "window position changed: ivec2({0}, {1})", t_window->m_position.x, t_window->m_position.y );
+                t_m_header.m_position = glm::ivec2( (int)(short) LOWORD( p_lParam ), (int)(short) HIWORD( p_lParam ) );
+                LOG.debug( "window position changed: ivec2({0}, {1})", t_m_header.m_position.x, t_m_header.m_position.y );
                 return 0;
             }
             case WM_KEYDOWN:
             {
-                if ( (glm::int32)p_wParam >= 0 && (glm::int32)p_wParam < 256 )
+                if ( (int)p_wParam >= 0 && (int)p_wParam < 256 )
                 {
-                    if ( 	(glm::int32)p_wParam != KEY_SHIFT_LEFT &&
-                            (glm::int32)p_wParam != KEY_CTRL_LEFT &&
-                            (glm::int32)p_wParam != KEY_ALT_LEFT &&
-                            (glm::int32)p_wParam != KEY_CURSOR_UP &&
-                            (glm::int32)p_wParam != KEY_CURSOR_DOWN &&
-                            (glm::int32)p_wParam != KEY_CURSOR_LEFT &&
-                            (glm::int32)p_wParam != KEY_CURSOR_RIGHT )
+                    if ( 	(int)p_wParam != KEY_SHIFT_LEFT &&
+                            (int)p_wParam != KEY_CTRL_LEFT &&
+                            (int)p_wParam != KEY_ALT_LEFT &&
+                            (int)p_wParam != KEY_CURSOR_UP &&
+                            (int)p_wParam != KEY_CURSOR_DOWN &&
+                            (int)p_wParam != KEY_CURSOR_LEFT &&
+                            (int)p_wParam != KEY_CURSOR_RIGHT )
                     {
-                        t_window->m_input.keyInput[(glm::int32)p_wParam] = true;
+                        t_m_header.m_input.keyInput[(int)p_wParam] = true;
                     }
                 }
                 break;
             }
             case WM_LBUTTONDOWN:
             {
-                t_window->m_input.mouseInput[MOUSE_LEFT] = true;
-                t_window->m_input.mouseInputX[MOUSE_LEFT] = LOWORD( p_lParam );
-                t_window->m_input.mouseInputY[MOUSE_LEFT] = (glm::int32)t_window->m_size.y - HIWORD( p_lParam );
+                t_m_header.m_input.mouseInput[MOUSE_LEFT] = true;
+                t_m_header.m_input.mouseInputX[MOUSE_LEFT] = LOWORD( p_lParam );
+                t_m_header.m_input.mouseInputY[MOUSE_LEFT] = (int)t_m_header.m_size.y - HIWORD( p_lParam );
                 break;
             }
             case WM_RBUTTONDOWN:
             {
-                t_window->m_input.mouseInput[MOUSE_RIGHT] = true;
-                t_window->m_input.mouseInputX[MOUSE_RIGHT] = LOWORD( p_lParam );
-                t_window->m_input.mouseInputY[MOUSE_RIGHT] = (glm::int32)t_window->m_size.y - HIWORD( p_lParam );
+                t_m_header.m_input.mouseInput[MOUSE_RIGHT] = true;
+                t_m_header.m_input.mouseInputX[MOUSE_RIGHT] = LOWORD( p_lParam );
+                t_m_header.m_input.mouseInputY[MOUSE_RIGHT] = (int)t_m_header.m_size.y - HIWORD( p_lParam );
                 break;
             }
             case WM_MOUSEMOVE:
             {
                 LOG.info( "mouse move: ", LOWORD( p_lParam ), ",", HIWORD( p_lParam ) );
-                t_window->m_cursorPosition = glm::vec2( LOWORD( p_lParam ), HIWORD( p_lParam ) );
+                t_m_header.m_cursorPosition = glm::vec2( LOWORD( p_lParam ), HIWORD( p_lParam ) );
                 break;
             }
         }
 
         return ::DefWindowProcA( p_hWnd, p_msg, p_wParam, p_lParam);  
     }
+#elif defined OS_LINUX
+
+    Atom AtomDeleteWindowCmd = 0;
+    Atom AtomWM_NAME = 0;
+    Atom Atom_NET_WM_BYPASS_COMPOSITOR = 0;
+    
+    bool ChangeVideoMode_XF86VidMode( Display * p_xDisplay, int p_xScreen, Window p_xWindow,
+								int * p_currentWidth, int * p_currentHeight, float * p_currentRefreshRate,
+								int * p_desiredWidth, int * p_desiredHeight, float * p_desiredRefreshRate )
+    {
+        int t_videoModeCount;
+        XF86VidModeModeInfo ** t_videoModeInfos;
+
+        ::XF86VidModeGetAllModeLines( p_xDisplay, p_xScreen, &t_videoModeCount, &t_videoModeInfos );
+
+        if ( p_currentWidth != NULL && p_currentHeight != NULL && p_currentRefreshRate != NULL )
+        {
+            XF86VidModeModeInfo * mode = t_videoModeInfos[0];
+            *p_currentWidth = mode->hdisplay;
+            *p_currentHeight = mode->vdisplay;
+            *p_currentRefreshRate = ( mode->dotclock * 1000.0f ) / ( mode->htotal * mode->vtotal );
+        }
+
+        if ( p_desiredWidth != NULL && p_desiredHeight != NULL && p_desiredRefreshRate != NULL )
+        {
+            XF86VidModeModeInfo * bestMode = NULL;
+            int bestModeWidth = 0;
+            int bestModeHeight = 0;
+            float bestModeRefreshRate = 0.0f;
+            int bestSizeError = 0x7FFFFFFF;
+            float bestRefreshRateError = 1e6f;
+            for ( int j = 0; j < t_videoModeCount; j++ )
+            {
+                XF86VidModeModeInfo * mode = t_videoModeInfos[j];
+                const int modeWidth = mode->hdisplay;
+                const int modeHeight = mode->vdisplay;
+                const float modeRefreshRate = ( mode->dotclock * 1000.0f ) / ( mode->htotal * mode->vtotal );
+
+                const int dw = modeWidth - *p_desiredWidth;
+                const int dh = modeHeight - *p_desiredHeight;
+                const int sizeError = dw * dw + dh * dh;
+                const float refreshRateError = fabs( modeRefreshRate - *p_desiredRefreshRate );
+                if ( sizeError < bestSizeError || ( sizeError == bestSizeError && refreshRateError < bestRefreshRateError ) )
+                {
+                    bestSizeError = sizeError;
+                    bestRefreshRateError = refreshRateError;
+                    bestMode = mode;
+                    bestModeWidth = modeWidth;
+                    bestModeHeight = modeHeight;
+                    bestModeRefreshRate = modeRefreshRate;
+                }
+            }
+
+            ::XF86VidModeSwitchToMode( p_xDisplay, p_xScreen, bestMode );
+            ::XF86VidModeSetViewPort( p_xDisplay, p_xScreen, 0, 0 );
+
+            *p_desiredWidth = bestModeWidth;
+            *p_desiredHeight = bestModeHeight;
+            *p_desiredRefreshRate = bestModeRefreshRate;
+        }
+
+        for ( int i = 0; i < t_videoModeCount; i++ )
+        {
+            if ( t_videoModeInfos[i]->privsize > 0 )
+            {
+                //::XFree( t_videoModeInfos[i]->private );
+                ::XFree( ( void * )( t_videoModeInfos[i] + sizeof( XF86VidModeModeInfo ) - sizeof( int ) ) );
+            }
+        }
+        ::XFree( t_videoModeInfos );
+
+        return true;
+    }
+
+    int x_error_handler( Display * p_display, XErrorEvent * p_event )
+    {
+        char t_err_desc[500];
+        ::XGetErrorText(p_display, p_event->error_code, t_err_desc, 500);
+
+        std::cerr << "X Error: \n"
+            "\tdisplay = " << ::XDisplayName(NULL) << "'\n"
+            "\tserial = " << p_event->serial << "'\n"
+            "\terror = '" << t_err_desc << "\n"
+            "\trequest = " << static_cast<int>(p_event->request_code) << "\n"
+            "\tminor = " << static_cast<int>(p_event->minor_code) << "\n";
+
+        return 0;
+    }
+
 #endif
 }

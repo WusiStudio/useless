@@ -49,6 +49,10 @@ aux_source_directory(src SRCS)
 
 add_library(${PROJECT_NAME} ${SRCS})
 
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    target_link_libraries(${PROJECT_NAME} uuid X11 Xxf86vm)
+endif()
+
 if(BUILD_UNIT_TESTS)
     add_subdirectory(tests)
 endif()

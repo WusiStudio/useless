@@ -10,9 +10,9 @@ aux_source_directory(src SRCS)
 
 add_executable(${PROJECT_NAME} ${SRCS})
 
-if ( CMAKE_SYSTEM_NAME MATCHES "Linux" )
-target_link_libraries(${PROJECT_NAME} uuid X11)
-endif( CMAKE_SYSTEM_NAME MATCHES "Linux" )
+# if ( CMAKE_SYSTEM_NAME MATCHES "Linux" )
+# target_link_libraries(${PROJECT_NAME} uuid X11 Xxf86vm)
+# endif( CMAKE_SYSTEM_NAME MATCHES "Linux" )
 
 if( CMAKE_SYSTEM_NAME MATCHES "Windows" )
     set_target_properties( ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4566" )
