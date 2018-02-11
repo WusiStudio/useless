@@ -310,7 +310,11 @@ namespace ROOT_NAMESPACE
                 setFullScreenState( !m_fullScreenState );
             }
 
-            usleep( 10000 );
+#ifdef  OS_WINDOWS
+			Sleep ( 10 );
+#elif defined OS_LINUX
+			usleep ( 10000 );
+#endif //  OS_WINDOWS
 
             consumeInput();
         }
@@ -775,9 +779,9 @@ namespace ROOT_NAMESPACE
         {
             case WM_ACTIVATE:
             {
-                t_m_header.m_active = LOWORD( p_wParam ) != WA_INACTIVE;
-                t_m_header.m_minimized = (bool)HIWORD( p_wParam );
-                LOG.debug( "window active state changed: {0} {1}", t_m_header.m_active, t_m_header.m_minimized );
+				t_window->m_active = LOWORD( p_wParam ) != WA_INACTIVE;
+				t_window->m_minimized = (bool)HIWORD( p_wParam );
+                LOG.debug( "window active state changed: {0} {1}", t_window->m_active, t_window->m_minimized );
                 return 0;
             }  
             case WM_SYSCOMMAND:
@@ -797,14 +801,14 @@ namespace ROOT_NAMESPACE
             }
             case WM_SIZE:
             {
-                t_m_header.m_size = glm::ivec2( (int) LOWORD( p_lParam ), (int) HIWORD( p_lParam ) );
-                LOG.debug( "window size changed: ivec2({0}, {1})", t_m_header.m_size.x, t_m_header.m_size.y );
+				t_window->m_size = glm::ivec2( (int) LOWORD( p_lParam ), (int) HIWORD( p_lParam ) );
+                LOG.debug( "window size changed: ivec2({0}, {1})", t_window->m_size.x, t_window->m_size.y );
                 return 0;
             }
             case WM_MOVE:
             {
-                t_m_header.m_position = glm::ivec2( (int)(short) LOWORD( p_lParam ), (int)(short) HIWORD( p_lParam ) );
-                LOG.debug( "window position changed: ivec2({0}, {1})", t_m_header.m_position.x, t_m_header.m_position.y );
+				t_window->m_position = glm::ivec2( (int)(short) LOWORD( p_lParam ), (int)(short) HIWORD( p_lParam ) );
+                LOG.debug( "window position changed: ivec2({0}, {1})", t_window->m_position.x, t_window->m_position.y );
                 return 0;
             }
             case WM_KEYDOWN:
@@ -819,29 +823,29 @@ namespace ROOT_NAMESPACE
                             (int)p_wParam != KEY_CURSOR_LEFT &&
                             (int)p_wParam != KEY_CURSOR_RIGHT )
                     {
-                        t_m_header.m_input.keyInput[(int)p_wParam] = true;
+						t_window->m_input.keyInput[(int)p_wParam] = true;
                     }
                 }
                 break;
             }
             case WM_LBUTTONDOWN:
             {
-                t_m_header.m_input.mouseInput[MOUSE_LEFT] = true;
-                t_m_header.m_input.mouseInputX[MOUSE_LEFT] = LOWORD( p_lParam );
-                t_m_header.m_input.mouseInputY[MOUSE_LEFT] = (int)t_m_header.m_size.y - HIWORD( p_lParam );
+				t_window->m_input.mouseInput[MOUSE_LEFT] = true;
+				t_window->m_input.mouseInputX[MOUSE_LEFT] = LOWORD( p_lParam );
+				t_window->m_input.mouseInputY[MOUSE_LEFT] = (int)t_window->m_size.y - HIWORD( p_lParam );
                 break;
             }
             case WM_RBUTTONDOWN:
             {
-                t_m_header.m_input.mouseInput[MOUSE_RIGHT] = true;
-                t_m_header.m_input.mouseInputX[MOUSE_RIGHT] = LOWORD( p_lParam );
-                t_m_header.m_input.mouseInputY[MOUSE_RIGHT] = (int)t_m_header.m_size.y - HIWORD( p_lParam );
+				t_window->m_input.mouseInput[MOUSE_RIGHT] = true;
+				t_window->m_input.mouseInputX[MOUSE_RIGHT] = LOWORD( p_lParam );
+				t_window->m_input.mouseInputY[MOUSE_RIGHT] = (int)t_window->m_size.y - HIWORD( p_lParam );
                 break;
             }
             case WM_MOUSEMOVE:
             {
                 LOG.info( "mouse move: ", LOWORD( p_lParam ), ",", HIWORD( p_lParam ) );
-                t_m_header.m_cursorPosition = glm::vec2( LOWORD( p_lParam ), HIWORD( p_lParam ) );
+				t_window->m_cursorPosition = glm::vec2( LOWORD( p_lParam ), HIWORD( p_lParam ) );
                 break;
             }
         }
