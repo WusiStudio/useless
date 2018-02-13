@@ -66,7 +66,7 @@ namespace ROOT_NAMESPACE
 
         AdjustWindowRectEx( &t_WindowRect, t_dwStyle, false, t_dwExStyle);  // 调整窗口达到真正要求的大小
 
-        if( ::SetWindowPos( m_header.hWnd, NULL, 0, 0, t_WindowRect.right - t_WindowRect.left, t_WindowRect.bottom - t_WindowRect.top, SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW  ) )
+        if( ::SetWindowPos( m_header.hWnd, HWND_TOP, 0, 0, t_WindowRect.right - t_WindowRect.left, t_WindowRect.bottom - t_WindowRect.top, SWP_NOMOVE | SWP_NOREDRAW  ) )
         {
             return false;
         }
@@ -227,17 +227,54 @@ namespace ROOT_NAMESPACE
             return false;
         }
 
-        if( destroy() )
+        //if( destroy() )
+        //{
+        //    LOG.error("falid to destroy window!");
+        //    return true;
+        //}
+
+        //if( init( m_title, m_size, m_position, p_fullScreenState, m_centerInDesktop, m_showCursor ) )
+        //{
+        //    LOG.error("falid to change fullScene reopen window!");
+        //    return true;
+        //}
+
+        if (p_fullScreenState)
         {
-            LOG.error("falid to destroy window!");
-            return true;
+            DEVMODE t_dmScreenSettings;                                         // 设备模式
+            memset ( &t_dmScreenSettings, 0, sizeof ( t_dmScreenSettings ) );   // 确保内存清空为零
+            t_dmScreenSettings.dmSize = sizeof ( t_dmScreenSettings );       // Devmode 结构的大小
+            t_dmScreenSettings.dmPelsWidth = (int)m_size.x;              // 所选屏幕宽度
+            t_dmScreenSettings.dmPelsHeight = (int)m_size.y;              // 所选屏幕高度
+            t_dmScreenSettings.dmBitsPerPel = 32;                         // 每象素所选的色彩深度
+            t_dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+            // 尝试设置显示模式并返回结果。注: CDS_FULLSCREEN 移去了状态条。
+
+            if (ChangeDisplaySettingsExA ( NULL, &t_dmScreenSettings, NULL, CDS_FULLSCREEN, NULL ) != DISP_CHANGE_SUCCESSFUL)
+            {
+                LOG.warning ( "try fullscene is faild" );
+                m_fullScreenState = false;
+                return false;
+            }
+
+            m_header.hStyle = GetWindowLong ( m_header.hWnd, GWL_STYLE );
+
+            SetWindowLong ( m_header.hWnd, GWL_STYLE, NULL );
+        }
+        else {
+            
+            if (ChangeDisplaySettingsExA ( NULL, NULL, NULL, CDS_FULLSCREEN, NULL ) != DISP_CHANGE_SUCCESSFUL)
+            {
+                LOG.warning ( "try exit fullscene is faild" );
+                m_fullScreenState = false;
+                return false;
+            }
+
+            SetWindowLong ( m_header.hWnd, GWL_STYLE, m_header.hStyle );
+
         }
 
-        if( init( m_title, m_size, m_position, p_fullScreenState, m_centerInDesktop, m_showCursor ) )
-        {
-            LOG.error("falid to change fullScene reopen window!");
-            return true;
-        }
+        m_fullScreenState = p_fullScreenState;
 
         return false;
     }
