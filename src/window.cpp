@@ -1,5 +1,10 @@
 #include "window.h"
 #include "tools/log.hpp"
+#include "xgraphical.h"
+
+
+#include <GL\gl.h>                        //必要的头文件
+#pragma comment(lib, "opengl32.lib")      //加入必要的lib文件
 
 
 namespace ROOT_NAMESPACE
@@ -258,8 +263,13 @@ namespace ROOT_NAMESPACE
             }
 
             m_header.hStyle = GetWindowLong ( m_header.hWnd, GWL_STYLE );
+            SetWindowLong ( m_header.hWnd, GWL_STYLE, WS_BORDER );
 
-            SetWindowLong ( m_header.hWnd, GWL_STYLE, NULL );
+            SetWindowPos ( m_header.hWnd, HWND_TOPMOST, 0, 0, m_size.x, m_size.y, SWP_SHOWWINDOW );
+
+            ShowWindow ( m_header.hWnd, SW_MAXIMIZE );
+
+            UpdateWindow ( m_header.hWnd );
         }
         else {
             
@@ -271,6 +281,12 @@ namespace ROOT_NAMESPACE
             }
 
             SetWindowLong ( m_header.hWnd, GWL_STYLE, m_header.hStyle );
+
+            //SetWindowPos ( m_header.hWnd, HWND_TOPMOST, 100, 100, m_size.x, m_size.y, SWP_SHOWWINDOW );
+
+            ShowWindow ( m_header.hWnd, SW_SHOW );
+
+            UpdateWindow ( m_header.hWnd );
 
         }
 
@@ -347,6 +363,17 @@ namespace ROOT_NAMESPACE
                 setFullScreenState( !m_fullScreenState );
             }
 
+            wglMakeCurrent ( m_header.hDC, m_header.hRC );
+
+            glClearColor ( 1.0f, 0.0f, 0.0f, 1.0f );
+
+            glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+
+            SwapBuffers ( m_header.hDC );
+
+            wglMakeCurrent ( NULL, NULL );
+
 #ifdef  OS_WINDOWS
 			Sleep ( 10 );
 #elif defined OS_LINUX
@@ -379,7 +406,7 @@ namespace ROOT_NAMESPACE
         t_wc.hInstance = m_header.hInstance;                             //应用程序实例  
         t_wc.hIcon = LoadIcon(0,IDI_WINLOGO);                           //应用程序图标  
         t_wc.hCursor = LoadCursor(0,IDC_ARROW);                         //应用程序光标  
-        t_wc.hbrBackground = NULL;                                      //窗口背景  
+        t_wc.hbrBackground = (HBRUSH)GetStockObject ( BLACK_BRUSH );    //窗口背景  
         t_wc.lpszMenuName = NULL;                                       //窗口菜单名        
         t_wc.cbClsExtra = 0;                                            //默认  
         t_wc.cbWndExtra = 0;                                            //默认  
@@ -500,6 +527,8 @@ namespace ROOT_NAMESPACE
         SetForegroundWindow( m_header.hWnd );
         SetFocus( m_header.hWnd ); 
         // UpdateWindow( m_header.hWnd );
+
+        xgraphical::init ( m_header );
 
 #elif defined OS_LINUX
 
@@ -708,6 +737,11 @@ namespace ROOT_NAMESPACE
         {
             ChangeDisplaySettingsA( NULL, 0 );
 		    ShowCursor( true );
+        }
+
+        if (m_header.hRC)
+        {
+            wglDeleteContext ( m_header.hRC );
         }
 
         if( m_header.hDC )

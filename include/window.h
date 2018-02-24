@@ -29,6 +29,7 @@ namespace ROOT_NAMESPACE
         HINSTANCE hInstance;  
         HWND      hWnd;
         HDC       hDC;
+        HGLRC     hRC;
         LONG      hStyle;
         static object * findWindow( HWND p_hWnd );
         static LRESULT CALLBACK window_proc(HWND p_hWnd,UINT p_msg,WPARAM p_wParam,LPARAM p_lParam);

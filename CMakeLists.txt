@@ -45,13 +45,18 @@ add_compile_options(-DROOT_NAMESPACE=ws)
 
 include_directories(${CMAKE_HOME_DIRECTORY}/deps)
 include_directories(${CMAKE_HOME_DIRECTORY}/include)
+include_directories(${CMAKE_HOME_DIRECTORY}/xgraphical)
 aux_source_directory(src SRCS)
+
+add_subdirectory(xgraphical)
 
 add_library(${PROJECT_NAME} ${SRCS})
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME} uuid X11 Xxf86vm)
 endif()
+
+target_link_libraries(${PROJECT_NAME} xgraphical)
 
 if(BUILD_UNIT_TESTS)
     add_subdirectory(tests)
