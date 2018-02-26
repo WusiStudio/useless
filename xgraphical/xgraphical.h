@@ -2,14 +2,27 @@
 #ifndef __X_GRAPHICAL_HPP__
 #define __X_GRAPHICAL_HPP__
 
-#include "window.h"
+#include "windowHeader.h"
+#include "imemory\object.hpp"
 
 namespace ROOT_NAMESPACE
 {
-    namespace xgraphical
+    class xgraphical : public object
     {
-        bool init ( windowHeader & p_windowHeader );
-    }
+    public:
+        static xgraphical & Create ( windowHeader & p_windowHeader );
+
+        bool render ( void );
+    protected:
+        CREATEFUNC ( xgraphical );
+        virtual bool init ( void ) override;
+        virtual bool init ( windowHeader & p_windowHeader );
+
+        xgraphical ( void );
+        virtual ~xgraphical ( void );
+    private:
+        
+    };
 }
 
 #endif //__X_GRAPHICAL_HPP__

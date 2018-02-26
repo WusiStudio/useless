@@ -528,7 +528,7 @@ namespace ROOT_NAMESPACE
         SetFocus( m_header.hWnd ); 
         // UpdateWindow( m_header.hWnd );
 
-        xgraphical::init ( m_header );
+        m_xgraphical = &xgraphical::Create ( m_header );
 
 #elif defined OS_LINUX
 
@@ -686,7 +686,7 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
-    window::window()
+    window::window() : m_xgraphical(nullptr)
     {
 
     }
