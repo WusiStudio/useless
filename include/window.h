@@ -15,6 +15,16 @@ namespace ROOT_NAMESPACE
 {
     class window : public object
     {
+
+        ATTIRBUTE_R( bool, Activate );
+        ATTIRBUTE_R( std::string, Title );
+        ATTIRBUTE_R( glm::ivec2, Size );
+        ATTIRBUTE_R( glm::ivec2, Position );
+        ATTIRBUTE_R( glm::ivec2, CursorPosition );
+        ATTIRBUTE_R( bool, FullScreenState );
+        ATTIRBUTE_R( bool, ShowCursor );
+
+
 #ifdef OS_WINDOWS
         friend LRESULT CALLBACK windowHeader::window_proc(HWND p_hWnd,UINT p_msg,WPARAM p_wParam,LPARAM p_lParam);
 #endif
@@ -34,13 +44,6 @@ namespace ROOT_NAMESPACE
         bool setCursorPos( const glm::ivec2 & p_cursorPos );
         bool setFullScreenState( const bool p_fullScreenState );
 
-        const std::string & getTitle( void ) const;
-        const glm::ivec2 & getSize( void ) const;
-        const glm::ivec2 & getPosition( void ) const;
-        const glm::ivec2 & getCursorPosition( void ) const;
-        bool getFullScreenState( void ) const;
-
-
     protected:
         window();
         virtual ~window();
@@ -54,22 +57,14 @@ namespace ROOT_NAMESPACE
 
         const bool processEvent( void );
         const bool consumeInput( void );
-    
-        std::string m_title;
-        glm::ivec2 m_size;
-        glm::ivec2 m_position;
-        glm::ivec2 m_cursorPosition;
 
-        bool m_run;
-        bool m_active;
-        bool m_minimized;
-        bool m_fullScreenState;
-        bool m_centerInDesktop;
-        bool m_showCursor;
-        windowHeader m_header;
-        windowInput m_input;
-
-        xgraphical * m_xgraphical;
+        bool m_Run;
+        bool m_Active;
+        bool m_Minimized;
+        bool m_CenterInDesktop;
+        windowHeader m_Header;
+        windowInput m_Input;
+        xgraphical * m_Xgraphical;
     };
 }
 

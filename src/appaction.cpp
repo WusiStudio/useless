@@ -11,8 +11,9 @@ namespace ROOT_NAMESPACE
 
     appaction::appaction( void ) : m_window ( nullptr )
     {
-
+        
     }
+
     appaction::~appaction( void )
     {
         

@@ -33,7 +33,8 @@ namespace ROOT_NAMESPACE
 
     inline bool object::init( void )
     {
-        return baseObj::init();
+        INIT( baseObj::init() );
+        return false;
     }
 
     inline bool object::destroy( void )

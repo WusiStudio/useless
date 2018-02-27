@@ -42,7 +42,7 @@ namespace ROOT_NAMESPACE
 #define IMGCMake	ROOT_NAMESPACE::gc::instance().makeCache();
 
 #define ATTIRBUTE( type, name )                     \
-    ATTIRBUTE_D( type, name )                       
+    DEFINE_ATTIRBUTE( type, name )                       
 
 #define ATTIRBUTE_W( type, name )                   \
     DEFINE_ATTIRBUTE( type, name )                  \
@@ -62,28 +62,34 @@ namespace ROOT_NAMESPACE
 
 #define DEFINE_ATTIRBUTE( type, name )              \
     private:                                        \
-        type    m##name;                            
+        type    m_##name;                            
 #define DEFINE_ATTIRBUTE_R( type, name )            \
     public:                                         \
-        type get##name( void )                      \
+        type get##name( void ) const                \
         {                                           \
-            return m##name;                         \
+            return m_##name;                        \
         }
 #define DEFINE_ATTIRBUTE_W( type, name )            \
     public:                                         \
         void set##name ( const type & p_##name )    \
         {                                           \
-            m##name = p_##name;                     \
+            m_##name = p_##name;                    \
         }                                           
 
 #define EVENT( func, name )                         \
     private:                                        \
-        event< func > m##name;                      \
+        event< func > m_on_##name;                  \
     public:                                         \
-        void on##name( const func & p_func )        \
+        void on_##name( const func & p_func )       \
         {                                           \
-            m##name.bind( p_func );                 \
-        }                                           
+            m_on_##name.bind( p_func );             \
+        }
+
+#define INIT( expression )                          \
+        if( expression )                            \
+        {                                           \
+            return true;                            \
+        }                                           \
 
     class object : public baseObj
     { 
