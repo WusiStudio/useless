@@ -19,11 +19,28 @@ namespace ROOT_NAMESPACE
 
     inline gcWorker::~gcWorker(void)
     {
-        //将不用的对象放入缓存中
+        //将不用的对象放入缓存中 
+        GcWorkers()[ mThreadId ]->pop();
+        gcWorker * t_gcWorker = nullptr;
+        
+        if( GcWorkers()[ mThreadId ]->size() > 0 )
+        {
+            t_gcWorker = GcWorkers()[ mThreadId ]->top();
+        }else
+        {
+            //删除当前栈管理对象
+            if( GcWorkers()[ mThreadId ]->size() <= 0 )
+            {
+                delete GcWorkers()[ mThreadId ];
+                GcWorkers().erase( mThreadId );
+            }
+        }
+
         for(baseObj * item : mManageObjList)
         {
-            if( item->quote() > 0 )
+            if( t_gcWorker && item->quote() > 0 )
             {
+                t_gcWorker->mManageObjList.push_back( item );
                 continue;
             }
 
@@ -33,14 +50,6 @@ namespace ROOT_NAMESPACE
             }
 
             gc::instance().cacheObj( *item );                
-        }
-
-        //删除当前栈管理对象
-        GcWorkers()[ mThreadId ]->pop();
-        if( GcWorkers()[ mThreadId ]->size() <= 0 )
-        {
-            delete GcWorkers()[ mThreadId ];
-            GcWorkers().erase( mThreadId );
         }
     }
 
@@ -70,6 +79,33 @@ namespace ROOT_NAMESPACE
                 tMangeObjectList.erase(t_item);
                 break;
             }
+        }
+    }
+
+    inline void gcWorker::immediatelyDestroy( void )
+    {
+        if ( !GcWorkers().size () || GcWorkers().find( ROOT_NAMESPACE::PthreadSelf () ) == GcWorkers().end() || !GcWorkers()[ROOT_NAMESPACE::PthreadSelf ()]->size())
+        {
+            LOG.warning ( "the current thread has no gcWorker!" );
+            return;
+        }
+
+        std::list< baseObj * > & t_ManageObjList = GcWorkers()[ROOT_NAMESPACE::PthreadSelf()]->top()->mManageObjList;
+
+
+        for(baseObj * item : t_ManageObjList)
+        {
+            if( item->quote() > 0 )
+            {
+                continue;
+            }
+
+            if( item->destroy() )
+            {
+                continue;
+            }
+
+            gc::instance().cacheObj( *item );                
         }
     }
 

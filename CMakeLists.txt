@@ -18,6 +18,7 @@ option(BE_BASED_ON_DIRECT3D_12 "" OFF)
 
 option(BUILD_UNIT_TESTS "" ON)
 
+
 #设置编译选项-------------------------------------------
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -m64 -std=c++11 -O0 -Wall -g")
@@ -61,8 +62,6 @@ target_link_libraries(${PROJECT_NAME} xgraphical)
 if(BUILD_UNIT_TESTS)
     add_subdirectory(tests)
 endif()
-
-
 
 
 

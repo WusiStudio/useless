@@ -19,6 +19,8 @@ namespace ROOT_NAMESPACE
 
         static void remove( baseObj & p_bobj );
 
+        static void immediatelyDestroy( void );
+
     private:
 
         static std::map< unsigned int, std::stack< gcWorker * > * > & GcWorkers(void);

@@ -1,4 +1,4 @@
-#include "../include/myObject.h"
+#include "myObject.h"
 #include "tools/log.hpp"
 
 

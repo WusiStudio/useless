@@ -24,6 +24,7 @@ namespace ROOT_NAMESPACE
         ATTIRBUTE_R( bool, FullScreenState );
         ATTIRBUTE_R( bool, ShowCursor );
 
+        EVENT( std::function< void( const float p_tm ) >, Tick );
 
 #ifdef OS_WINDOWS
         friend LRESULT CALLBACK windowHeader::window_proc(HWND p_hWnd,UINT p_msg,WPARAM p_wParam,LPARAM p_lParam);

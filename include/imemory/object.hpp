@@ -78,14 +78,14 @@ namespace ROOT_NAMESPACE
 
 #define EVENT( func, name )                         \
     private:                                        \
-        event< func > m_on_##name;                  \
+        event< func > m_event_##name;               \
     public:                                         \
-        void on_##name( const func & p_func )       \
+        void bind_##name( const func & p_func )     \
         {                                           \
-            m_on_##name.bind( p_func );             \
-        }
+            m_event_##name.bind( p_func );          \
+        }                                          
 
-#define INIT( expression )                          \
+#define CALL( expression )                          \
         if( expression )                            \
         {                                           \
             return true;                            \

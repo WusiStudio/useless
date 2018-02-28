@@ -12,7 +12,8 @@ namespace ROOT_NAMESPACE
     public:
         static xgraphical & Create ( windowHeader & p_windowHeader );
 
-        bool render ( void );
+        bool renderStart ( windowHeader & p_windowHeader );
+        bool renderEnd ( windowHeader & p_windowHeader );
     protected:
         CREATEFUNC ( xgraphical );
         virtual bool init ( void ) override;

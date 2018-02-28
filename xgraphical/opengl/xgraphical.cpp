@@ -1,5 +1,7 @@
 #include "xgraphical.h"
 
+#include <GL\gl.h>                        //必要的头文件
+
 namespace ROOT_NAMESPACE
 {
 
@@ -60,9 +62,20 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
-    bool xgraphical::render ( void )
+    bool xgraphical::renderStart ( windowHeader & p_windowHeader )
     {
+        wglMakeCurrent ( p_windowHeader.hDC, p_windowHeader.hRC );
 
+        glClearColor ( 1.0f, 0.0f, 0.0f, 1.0f );
+
+        glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+        return false;
+    }
+    bool xgraphical::renderEnd ( windowHeader & p_windowHeader )
+    {
+        SwapBuffers ( p_windowHeader.hDC );
+        wglMakeCurrent ( NULL, NULL );
         return false;
     }
 

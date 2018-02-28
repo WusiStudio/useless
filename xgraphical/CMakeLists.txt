@@ -11,3 +11,7 @@ if(BE_BASED_ON_OPENGL)
 endif()
 
 add_library( ${PROJECT_NAME} ${SRCS} )
+
+if(BE_BASED_ON_OPENGL)
+target_link_libraries(${PROJECT_NAME} opengl32)
+endif()

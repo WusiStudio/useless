@@ -14,7 +14,7 @@ namespace ROOT_NAMESPACE
 
     bool node::init( void )
     {
-        INIT( object::init() );
+        CALL( object::init() );
 
         return false;
     }

@@ -2,11 +2,6 @@
 #include "tools/log.hpp"
 #include "xgraphical.h"
 
-
-#include <GL\gl.h>                        //必要的头文件
-#pragma comment(lib, "opengl32.lib")      //加入必要的lib文件
-
-
 namespace ROOT_NAMESPACE
 {
 
@@ -232,18 +227,6 @@ namespace ROOT_NAMESPACE
             return false;
         }
 
-        //if( destroy() )
-        //{
-        //    LOG.error("falid to destroy window!");
-        //    return true;
-        //}
-
-        //if( init( m_title, m_size, m_position, p_fullScreenState, m_CenterInDesktop, m_ShowCursor ) )
-        //{
-        //    LOG.error("falid to change fullScene reopen window!");
-        //    return true;
-        //}
-
         if ( p_fullScreenState )
         {
             DEVMODE t_dmScreenSettings;                                         // 设备模式
@@ -282,11 +265,13 @@ namespace ROOT_NAMESPACE
 
             SetWindowLong ( m_Header.hWnd, GWL_STYLE, m_Header.hStyle );
 
-            //SetWindowPos ( m_Header.hWnd, HWND_TOPMOST, 100, 100, m_size.x, m_size.y, SWP_SHOWWINDOW );
-
             ShowWindow ( m_Header.hWnd, SW_SHOW );
 
             UpdateWindow ( m_Header.hWnd );
+
+
+            setSize( m_Size );
+            setPosition( ( GetSystemResolution() - m_Size ) / 2 );
 
         }
 
@@ -341,16 +326,11 @@ namespace ROOT_NAMESPACE
                 setFullScreenState( !m_FullScreenState );
             }
 
-            wglMakeCurrent ( m_Header.hDC, m_Header.hRC );
+            m_Xgraphical->renderStart( m_Header );
 
-            glClearColor ( 1.0f, 0.0f, 0.0f, 1.0f );
+            m_event_Tick( 1.0f );
 
-            glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-
-            SwapBuffers ( m_Header.hDC );
-
-            wglMakeCurrent ( NULL, NULL );
+            m_Xgraphical->renderEnd( m_Header );
 
 #ifdef  OS_WINDOWS
 			Sleep ( 10 );
@@ -676,7 +656,7 @@ namespace ROOT_NAMESPACE
 
     bool window::init( void )
     {
-        INIT( object::init() );
+        CALL( object::init() );
 
         m_Run = false;
         m_Active = false;

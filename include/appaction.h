@@ -9,18 +9,21 @@ namespace ROOT_NAMESPACE
 {
     class appaction : public object
     {
-        friend class window;
     public:
-        static appaction & instance( void );
+        int exec( void );
+
+        bool bindWindow( window & p_window );
     protected:
-        CREATEFUNC(appaction);
         virtual bool init( void ) override;
 
         appaction( void );
         virtual ~appaction( void );
 
-        virtual void tick( const float p_tm );
+        virtual bool tick( const float p_tm );
     private:
+
+        bool bindEvent( void );
+        bool unbindEvent( void );
 
         window * m_window;
     };

@@ -5,7 +5,7 @@
 #include "tools/uuidExt.hpp"
 #include "glm/glm.hpp"
 
-#include "window.h"
+#include "myAppaction.h"
 
 void test( void )
 {
@@ -16,79 +16,74 @@ void test( void )
 int main( int argc, char ** argv )
 {
     IMSTACK
-    
-    test();
 
-    IMGCMake
+        // test();
 
-    LOG.debug("{0}{2}", " 0,", " 1,", " 2,", " 3");
+        // IMGCMake
 
-    myObject & myobject = myObject::Create();
+        // LOG.debug("{0}{2}", " 0,", " 1,", " 2,", " 3");
 
-    ROOT_NAMESPACE::object * t_object = &myobject;
-    LOG.debug( "t_object: {0}, {1}", typeid(t_object).name(), t_object->realType() );
+        // myObject & myobject = myObject::Create();
 
-    ROOT_NAMESPACE::baseObj * t_baseObject = &myobject;
-    LOG.debug( "t_baseObject: {0}, {1}", typeid(t_baseObject).name(), t_baseObject->realType() );
+        // ROOT_NAMESPACE::object * t_object = &myobject;
+        // LOG.debug( "t_object: {0}, {1}", typeid(t_object).name(), t_object->realType() );
 
-    myobject.release();
+        // ROOT_NAMESPACE::baseObj * t_baseObject = &myobject;
+        // LOG.debug( "t_baseObject: {0}, {1}", typeid(t_baseObject).name(), t_baseObject->realType() );
 
-    IMGCMake
+        // myobject.release();
 
-    myObject & myobject2 = myObject::Create();
+        // IMGCMake
 
-    LOG.info("hello world");
+        // myObject & myobject2 = myObject::Create();
 
-    LOG.info("char set: ", CHAR_SET);
+        // LOG.info("hello world");
 
-    LOG.debug("[{0, 7}]", "1");
-    LOG.debug("[{0, 7}]", "12");
-    LOG.debug("[{0, 7}]", "123");
-    LOG.debug("[{0, 7}]", "1234");
-    LOG.debug("[{0, 7}]", "12345");
-    LOG.debug("[{0, 7}]", "123456");
-    LOG.debug("[{0, 7}]", "7654321");
-    LOG.debug("[{0, 7}]", "87654321");
-    LOG.debug("[{0, 7}]", "987654321");
+        // LOG.info("char set: ", CHAR_SET);
 
-    LOG.debug("[{0, 7}]", "你");
-    LOG.debug("[{0, 7}]", "你吃");
-    LOG.debug("[{0, 7}]", "你吃饭");
-    LOG.debug("[{0, 7}]", "你吃饭了");
-    LOG.debug("[{0, 7}]", "你吃饭了吗");
-    LOG.debug("[{0, 7}]", "你吃饭了吗？");
-    
+        // LOG.debug("[{0, 7}]", "1");
+        // LOG.debug("[{0, 7}]", "12");
+        // LOG.debug("[{0, 7}]", "123");
+        // LOG.debug("[{0, 7}]", "1234");
+        // LOG.debug("[{0, 7}]", "12345");
+        // LOG.debug("[{0, 7}]", "123456");
+        // LOG.debug("[{0, 7}]", "7654321");
+        // LOG.debug("[{0, 7}]", "87654321");
+        // LOG.debug("[{0, 7}]", "987654321");
 
-
-    LOG.debug("[{0, -7}]", "1");
-    LOG.debug("[{0, -7}]", "12");
-    LOG.debug("[{0, -7}]", "123");
-    LOG.debug("[{0, -7}]", "1234");
-    LOG.debug("[{0, -7}]", "12345");
-    LOG.debug("[{0, -7}]", "123456");
-    LOG.debug("[{0, -7}]", "7654321");
-    LOG.debug("[{0, -7}]", "87654321");
-    LOG.debug("[{0, -7}]", "987654321");
-
-    LOG.debug("[{0, -7}]", "你");
-    LOG.debug("[{0, -7}]", "你吃");
-    LOG.debug("[{0, -7}]", "你吃饭");
-    LOG.debug("[{0, -7}]", "你吃饭了");
-    LOG.debug("[{0, -7}]", "你吃饭了吗");
-    LOG.debug("[{0, -7}]", "你吃饭了吗？");
+        // LOG.debug("[{0, 7}]", "你");
+        // LOG.debug("[{0, 7}]", "你吃");
+        // LOG.debug("[{0, 7}]", "你吃饭");
+        // LOG.debug("[{0, 7}]", "你吃饭了");
+        // LOG.debug("[{0, 7}]", "你吃饭了吗");
+        // LOG.debug("[{0, 7}]", "你吃饭了吗？");
 
 
-    LOG.debug("uuid test: ", ROOT_NAMESPACE::uuid().toString());
 
-    LOG.debug("{0, C}", 12345678.901);
+        // LOG.debug("[{0, -7}]", "1");
+        // LOG.debug("[{0, -7}]", "12");
+        // LOG.debug("[{0, -7}]", "123");
+        // LOG.debug("[{0, -7}]", "1234");
+        // LOG.debug("[{0, -7}]", "12345");
+        // LOG.debug("[{0, -7}]", "123456");
+        // LOG.debug("[{0, -7}]", "7654321");
+        // LOG.debug("[{0, -7}]", "87654321");
+        // LOG.debug("[{0, -7}]", "987654321");
+
+        // LOG.debug("[{0, -7}]", "你");
+        // LOG.debug("[{0, -7}]", "你吃");
+        // LOG.debug("[{0, -7}]", "你吃饭");
+        // LOG.debug("[{0, -7}]", "你吃饭了");
+        // LOG.debug("[{0, -7}]", "你吃饭了吗");
+        // LOG.debug("[{0, -7}]", "你吃饭了吗？");
 
 
-    ws::window & t_window = ws::window::Create( "HelloWorld", glm::ivec2( 1360, 768 ), false );
+        // LOG.debug("uuid test: ", ROOT_NAMESPACE::uuid().toString());
 
-    if( t_window.run() )
-    {
-        LOG.error( "window crash!" );
-    }
+        // LOG.debug("{0, C}", 12345678.901);
 
-    return 0;
+        myAppaction & my_appaction = myAppaction::Create();
+
+        return my_appaction.exec();
+
 }
