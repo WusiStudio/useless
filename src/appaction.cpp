@@ -60,6 +60,11 @@ namespace ROOT_NAMESPACE
 
      bool appaction::bindEvent( void )
      {
+         if( m_eventTick != uuid() )
+         {
+             m_window->unbind_Tick( m_eventTick );
+         }
+
          m_window->bind_Tick ( [this]( const float p_tm )->void {
              IMSTACK
              if( tick ( p_tm ) )
@@ -72,6 +77,10 @@ namespace ROOT_NAMESPACE
 
      bool appaction::unbindEvent( void )
      {
+         if( m_eventTick != uuid() )
+         {
+             m_window->unbind_Tick( m_eventTick );
+         }
          return false;
      }
 }

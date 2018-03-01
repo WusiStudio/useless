@@ -58,7 +58,7 @@ namespace ROOT_NAMESPACE
     }
 
     template<typename eventType>
-    inline event<eventType> & event<eventType>::unbind( ROOT_NAMESPACE::uuid & p_funcId )
+    inline event<eventType> & event<eventType>::unbind( const ROOT_NAMESPACE::uuid & p_funcId )
     {
         if( mEvents.find( p_funcId.toString() ) != mEvents.end() )
         {

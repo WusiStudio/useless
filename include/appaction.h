@@ -4,11 +4,13 @@
 
 #include "imemory/object.hpp"
 #include "window.h"
+#include "tools/uuidExt.hpp"
 
 namespace ROOT_NAMESPACE
 {
     class appaction : public object
     {
+        ATTIRBUTE_R( uuid, eventTick );
     public:
         int exec( void );
 

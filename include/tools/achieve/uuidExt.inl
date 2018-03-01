@@ -39,12 +39,12 @@ namespace ROOT_NAMESPACE
         memcpy( mVal, p_uuid.mVal, sizeof(mVal) );
     }
 
-    inline bool uuid::operator!=( const uuid & p_uuid )
+    inline bool uuid::operator!=( const uuid & p_uuid ) const
     {
         return !operator==( p_uuid );
     }
 
-    inline bool uuid::operator==( const uuid & p_uuid )
+    inline bool uuid::operator==( const uuid & p_uuid ) const
     {
         for( size_t i = 0; i < sizeof(mVal); ++i )
         {
@@ -53,12 +53,12 @@ namespace ROOT_NAMESPACE
         return true;
     }
 
-    inline std::string uuid::toString(void)
+    inline std::string uuid::toString(void) const
     {
         return std::string( mVal );
     }
 
-    inline std::string uuid::toLowerString(void)
+    inline std::string uuid::toLowerString(void) const
     {
         std::string result( mVal );
         std::transform( result.begin(), result.end(), result.begin(), ::tolower );

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7.1)
+cmake_minimum_required(VERSION 3.3.2)
 
 project(useless)
 
@@ -20,7 +20,7 @@ option(BUILD_UNIT_TESTS "" ON)
 
 
 #设置编译选项-------------------------------------------
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+if ((CMAKE_SYSTEM_NAME MATCHES "Linux") OR (${CYGWIN}))
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -m64 -std=c++11 -O0 -Wall -g")
     set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -m64 -std=c++11 -O3 -Wall")
     add_compile_options(-DCHAR_SET="UTF-8")

@@ -83,6 +83,10 @@ namespace ROOT_NAMESPACE
         void bind_##name( const func & p_func )     \
         {                                           \
             m_event_##name.bind( p_func );          \
+        }                                           \
+        void unbind_##name( const uuid & p_event )  \
+        {                                           \
+            m_event_##name.unbind( p_event );       \
         }                                          
 
 #define CALL( expression )                          \

@@ -810,7 +810,7 @@ namespace ROOT_NAMESPACE
             {
 				t_window->m_Active = LOWORD( p_wParam ) != WA_INACTIVE;
 				t_window->m_Minimized = (bool)HIWORD( p_wParam );
-                LOG.debug( "window active state changed: {0} {1}", t_window->m_Active, t_window->m_Minimized );
+                //LOG.debug( "window active state changed: {0} {1}", t_window->m_Active, t_window->m_Minimized );
                 return 0;
             }  
             case WM_SYSCOMMAND:
@@ -831,13 +831,13 @@ namespace ROOT_NAMESPACE
             case WM_SIZE:
             {
 				t_window->m_Size = glm::ivec2( (int) LOWORD( p_lParam ), (int) HIWORD( p_lParam ) );
-                LOG.debug( "window size changed: ivec2({0}, {1})", t_window->m_Size.x, t_window->m_Size.y );
+                //LOG.debug( "window size changed: ivec2({0}, {1})", t_window->m_Size.x, t_window->m_Size.y );
                 return 0;
             }
             case WM_MOVE:
             {
 				t_window->m_Position = glm::ivec2( (int)(short) LOWORD( p_lParam ), (int)(short) HIWORD( p_lParam ) );
-                LOG.debug( "window position changed: ivec2({0}, {1})", t_window->m_Position.x, t_window->m_Position.y );
+                //LOG.debug( "window position changed: ivec2({0}, {1})", t_window->m_Position.x, t_window->m_Position.y );
                 return 0;
             }
             case WM_KEYDOWN:
@@ -873,7 +873,7 @@ namespace ROOT_NAMESPACE
             }
             case WM_MOUSEMOVE:
             {
-                LOG.info( "mouse move: ", LOWORD( p_lParam ), ",", HIWORD( p_lParam ) );
+                //LOG.info( "mouse move: ", LOWORD( p_lParam ), ",", HIWORD( p_lParam ) );
 				t_window->m_CursorPosition = glm::vec2( LOWORD( p_lParam ), HIWORD( p_lParam ) );
                 break;
             }

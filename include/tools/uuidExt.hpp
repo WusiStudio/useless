@@ -14,13 +14,13 @@ namespace ROOT_NAMESPACE
 
         uuid( const uuid & p_uuid );
 
-        bool operator!=( const uuid & p_uuid );
+        bool operator!=( const uuid & p_uuid ) const;
 
-        bool operator==( const uuid & p_uuid );
+        bool operator==( const uuid & p_uuid ) const;
 
-        std::string toString(void);
+        std::string toString(void) const;
 
-        std::string toLowerString(void);
+        std::string toLowerString(void) const;
     private:
         char mVal[33];
     };

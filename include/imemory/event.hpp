@@ -29,7 +29,7 @@ namespace ROOT_NAMESPACE
 
         event & operator-( const ROOT_NAMESPACE::uuid & p_funcId );
 
-        event & unbind( ROOT_NAMESPACE::uuid & p_funcId );
+        event & unbind( const ROOT_NAMESPACE::uuid & p_funcId );
 
         event & clear( void );
 
