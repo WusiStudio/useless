@@ -15,7 +15,7 @@ namespace ROOT_NAMESPACE
     #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
         return ::GetCurrentThreadId();
     #elif defined(__linux__) || defined(__unix__)
-        return pthread_self();
+        return (unsigned int)(unsigned long)pthread_self();
     #else
         return -1;
     #endif

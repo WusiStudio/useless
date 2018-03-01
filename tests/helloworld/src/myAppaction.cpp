@@ -18,7 +18,7 @@ bool myAppaction::init( void )
 bool myAppaction::tick( const float p_tm )
 {
     CALL ( ws::appaction::tick ( p_tm ) );
-    //LOG.debug( "--------{0,F}", p_tm );
+    LOG.debug( "--------{0,F}", p_tm );
 
     return false;
 }

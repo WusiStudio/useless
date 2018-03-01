@@ -226,7 +226,7 @@ namespace ROOT_NAMESPACE
         {
             return false;
         }
-
+#ifdef OS_WINDOWS
         if ( p_fullScreenState )
         {
             DEVMODE t_dmScreenSettings;                                         // 设备模式
@@ -274,6 +274,7 @@ namespace ROOT_NAMESPACE
             setPosition( ( GetSystemResolution() - m_Size ) / 2 );
 
         }
+#endif
 
         m_FullScreenState = p_fullScreenState;
 
@@ -509,21 +510,21 @@ namespace ROOT_NAMESPACE
 
         m_Header.xWindowSize = p_size;
         m_Header.xWindowRefreshRate = 120.0f;
-        if( m_FullScreenState )
-        {
-            ChangeVideoMode_XF86VidMode( m_Header.xDisplay, m_Header.xScreen, m_Header.xRoot, 
-                                            &m_Header.xDesktopSize.x, &m_Header.xDesktopSize.y, &m_Header.xDesktopRefreshRate,
-                                            &m_Header.xWindowSize.x, &m_Header.xWindowSize.y, &m_Header.xWindowRefreshRate );
-            m_Header.xWindowSize = p_size;
+        // if( m_FullScreenState )
+        // {
+        //     ChangeVideoMode_XF86VidMode( m_Header.xDisplay, m_Header.xScreen, m_Header.xRoot, 
+        //                                     &m_Header.xDesktopSize.x, &m_Header.xDesktopSize.y, &m_Header.xDesktopRefreshRate,
+        //                                     &m_Header.xWindowSize.x, &m_Header.xWindowSize.y, &m_Header.xWindowRefreshRate );
+        //     m_Header.xWindowSize = p_size;
 
-            LOG.info("m_Header.xWindowSize: \\{{0}, {1}\\}", m_Header.xWindowSize.x, m_Header.xWindowSize.y);
-        }else{
-            ChangeVideoMode_XF86VidMode( m_Header.xDisplay, m_Header.xScreen, m_Header.xRoot, 
-                                            &m_Header.xDesktopSize.x, &m_Header.xDesktopSize.y, &m_Header.xDesktopRefreshRate,
-									        NULL, NULL, NULL );
+        //     LOG.info("m_Header.xWindowSize: \\{{0}, {1}\\}", m_Header.xWindowSize.x, m_Header.xWindowSize.y);
+        // }else{
+        //     ChangeVideoMode_XF86VidMode( m_Header.xDisplay, m_Header.xScreen, m_Header.xRoot, 
+        //                                     &m_Header.xDesktopSize.x, &m_Header.xDesktopSize.y, &m_Header.xDesktopRefreshRate,
+		// 							        NULL, NULL, NULL );
 
-            m_Header.xWindowRefreshRate = m_Header.xDesktopRefreshRate;
-        }
+        //     m_Header.xWindowRefreshRate = m_Header.xDesktopRefreshRate;
+        // }
 
         m_Header.xColormap = ::XCreateColormap( m_Header.xDisplay, m_Header.xRoot, m_Header.xVisual, AllocNone );
 
@@ -737,15 +738,15 @@ namespace ROOT_NAMESPACE
         }
 #elif defined OS_LINUX
 
-        if( m_FullScreenState )
-        {
-            ChangeVideoMode_XF86VidMode( m_Header.xDisplay, m_Header.xScreen, m_Header.xRoot,
-									NULL, NULL, NULL,
-									&m_Header.xDesktopSize.x, &m_Header.xDesktopSize.y, &m_Header.xDesktopRefreshRate );
+        // if( m_FullScreenState )
+        // {
+        //     ChangeVideoMode_XF86VidMode( m_Header.xDisplay, m_Header.xScreen, m_Header.xRoot,
+		// 							NULL, NULL, NULL,
+		// 							&m_Header.xDesktopSize.x, &m_Header.xDesktopSize.y, &m_Header.xDesktopRefreshRate );
 
-            XUngrabPointer( m_Header.xDisplay, CurrentTime );
-            XUngrabKeyboard( m_Header.xDisplay, CurrentTime );
-        }
+        //     XUngrabPointer( m_Header.xDisplay, CurrentTime );
+        //     XUngrabKeyboard( m_Header.xDisplay, CurrentTime );
+        // }
 
         if( m_Header.xWindow )
         {
@@ -887,73 +888,73 @@ namespace ROOT_NAMESPACE
     Atom AtomWM_NAME = 0;
     Atom Atom_NET_WM_BYPASS_COMPOSITOR = 0;
     
-    bool ChangeVideoMode_XF86VidMode( Display * p_xDisplay, int p_xScreen, Window p_xWindow,
-								int * p_currentWidth, int * p_currentHeight, float * p_currentRefreshRate,
-								int * p_desiredWidth, int * p_desiredHeight, float * p_desiredRefreshRate )
-    {
-        int t_videoModeCount;
-        XF86VidModeModeInfo ** t_videoModeInfos;
+    // bool ChangeVideoMode_XF86VidMode( Display * p_xDisplay, int p_xScreen, Window p_xWindow,
+	// 							int * p_currentWidth, int * p_currentHeight, float * p_currentRefreshRate,
+	// 							int * p_desiredWidth, int * p_desiredHeight, float * p_desiredRefreshRate )
+    // {
+    //     int t_videoModeCount;
+    //     XF86VidModeModeInfo ** t_videoModeInfos;
 
-        ::XF86VidModeGetAllModeLines( p_xDisplay, p_xScreen, &t_videoModeCount, &t_videoModeInfos );
+    //     ::XF86VidModeGetAllModeLines( p_xDisplay, p_xScreen, &t_videoModeCount, &t_videoModeInfos );
 
-        if ( p_currentWidth != NULL && p_currentHeight != NULL && p_currentRefreshRate != NULL )
-        {
-            XF86VidModeModeInfo * mode = t_videoModeInfos[0];
-            *p_currentWidth = mode->hdisplay;
-            *p_currentHeight = mode->vdisplay;
-            *p_currentRefreshRate = ( mode->dotclock * 1000.0f ) / ( mode->htotal * mode->vtotal );
-        }
+    //     if ( p_currentWidth != NULL && p_currentHeight != NULL && p_currentRefreshRate != NULL )
+    //     {
+    //         XF86VidModeModeInfo * mode = t_videoModeInfos[0];
+    //         *p_currentWidth = mode->hdisplay;
+    //         *p_currentHeight = mode->vdisplay;
+    //         *p_currentRefreshRate = ( mode->dotclock * 1000.0f ) / ( mode->htotal * mode->vtotal );
+    //     }
 
-        if ( p_desiredWidth != NULL && p_desiredHeight != NULL && p_desiredRefreshRate != NULL )
-        {
-            XF86VidModeModeInfo * bestMode = NULL;
-            int bestModeWidth = 0;
-            int bestModeHeight = 0;
-            float bestModeRefreshRate = 0.0f;
-            int bestSizeError = 0x7FFFFFFF;
-            float bestRefreshRateError = 1e6f;
-            for ( int j = 0; j < t_videoModeCount; j++ )
-            {
-                XF86VidModeModeInfo * mode = t_videoModeInfos[j];
-                const int modeWidth = mode->hdisplay;
-                const int modeHeight = mode->vdisplay;
-                const float modeRefreshRate = ( mode->dotclock * 1000.0f ) / ( mode->htotal * mode->vtotal );
+    //     if ( p_desiredWidth != NULL && p_desiredHeight != NULL && p_desiredRefreshRate != NULL )
+    //     {
+    //         XF86VidModeModeInfo * bestMode = NULL;
+    //         int bestModeWidth = 0;
+    //         int bestModeHeight = 0;
+    //         float bestModeRefreshRate = 0.0f;
+    //         int bestSizeError = 0x7FFFFFFF;
+    //         float bestRefreshRateError = 1e6f;
+    //         for ( int j = 0; j < t_videoModeCount; j++ )
+    //         {
+    //             XF86VidModeModeInfo * mode = t_videoModeInfos[j];
+    //             const int modeWidth = mode->hdisplay;
+    //             const int modeHeight = mode->vdisplay;
+    //             const float modeRefreshRate = ( mode->dotclock * 1000.0f ) / ( mode->htotal * mode->vtotal );
 
-                const int dw = modeWidth - *p_desiredWidth;
-                const int dh = modeHeight - *p_desiredHeight;
-                const int sizeError = dw * dw + dh * dh;
-                const float refreshRateError = fabs( modeRefreshRate - *p_desiredRefreshRate );
-                if ( sizeError < bestSizeError || ( sizeError == bestSizeError && refreshRateError < bestRefreshRateError ) )
-                {
-                    bestSizeError = sizeError;
-                    bestRefreshRateError = refreshRateError;
-                    bestMode = mode;
-                    bestModeWidth = modeWidth;
-                    bestModeHeight = modeHeight;
-                    bestModeRefreshRate = modeRefreshRate;
-                }
-            }
+    //             const int dw = modeWidth - *p_desiredWidth;
+    //             const int dh = modeHeight - *p_desiredHeight;
+    //             const int sizeError = dw * dw + dh * dh;
+    //             const float refreshRateError = fabs( modeRefreshRate - *p_desiredRefreshRate );
+    //             if ( sizeError < bestSizeError || ( sizeError == bestSizeError && refreshRateError < bestRefreshRateError ) )
+    //             {
+    //                 bestSizeError = sizeError;
+    //                 bestRefreshRateError = refreshRateError;
+    //                 bestMode = mode;
+    //                 bestModeWidth = modeWidth;
+    //                 bestModeHeight = modeHeight;
+    //                 bestModeRefreshRate = modeRefreshRate;
+    //             }
+    //         }
 
-            ::XF86VidModeSwitchToMode( p_xDisplay, p_xScreen, bestMode );
-            ::XF86VidModeSetViewPort( p_xDisplay, p_xScreen, 0, 0 );
+    //         ::XF86VidModeSwitchToMode( p_xDisplay, p_xScreen, bestMode );
+    //         ::XF86VidModeSetViewPort( p_xDisplay, p_xScreen, 0, 0 );
 
-            *p_desiredWidth = bestModeWidth;
-            *p_desiredHeight = bestModeHeight;
-            *p_desiredRefreshRate = bestModeRefreshRate;
-        }
+    //         *p_desiredWidth = bestModeWidth;
+    //         *p_desiredHeight = bestModeHeight;
+    //         *p_desiredRefreshRate = bestModeRefreshRate;
+    //     }
 
-        for ( int i = 0; i < t_videoModeCount; i++ )
-        {
-            if ( t_videoModeInfos[i]->privsize > 0 )
-            {
-                //::XFree( t_videoModeInfos[i]->private );
-                ::XFree( ( void * )( t_videoModeInfos[i] + sizeof( XF86VidModeModeInfo ) - sizeof( int ) ) );
-            }
-        }
-        ::XFree( t_videoModeInfos );
+    //     for ( int i = 0; i < t_videoModeCount; i++ )
+    //     {
+    //         if ( t_videoModeInfos[i]->privsize > 0 )
+    //         {
+    //             //::XFree( t_videoModeInfos[i]->private );
+    //             ::XFree( ( void * )( t_videoModeInfos[i] + sizeof( XF86VidModeModeInfo ) - sizeof( int ) ) );
+    //         }
+    //     }
+    //     ::XFree( t_videoModeInfos );
 
-        return true;
-    }
+    //     return true;
+    // }
 
     int x_error_handler( Display * p_display, XErrorEvent * p_event )
     {

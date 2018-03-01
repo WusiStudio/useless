@@ -10,13 +10,12 @@
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
-#include <X11/extensions/xf86vmode.h>	// for fullscreen video mode
 #include <X11/extensions/Xrandr.h>		// for resolution changes
 #endif
 
 #include <map>
 #include "imemory/object.hpp"
-#include "glm::vec2.cpp"
+#include "glm/vec2.hpp"
 
 namespace ROOT_NAMESPACE
 {
