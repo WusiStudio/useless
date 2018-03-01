@@ -16,6 +16,7 @@
 
 #include <map>
 #include "imemory/object.hpp"
+#include "glm::vec2.cpp"
 
 namespace ROOT_NAMESPACE
 {

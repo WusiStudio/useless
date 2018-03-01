@@ -79,8 +79,8 @@ namespace ROOT_NAMESPACE
     {
 #ifdef OS_WINDOWS
         SwapBuffers ( p_windowHeader.hDC );
-#endif
         wglMakeCurrent ( NULL, NULL );
+#endif
         return false;
     }
 
