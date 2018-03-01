@@ -19,6 +19,11 @@ namespace ROOT_NAMESPACE
         virtual bool init( void );
 
         virtual bool tick( const float p_tm );
+        virtual bool keyboardDown( const char p_key );
+        virtual bool keyboardUp( const char p_key );
+
+        virtual bool mouseMove( const glm::ivec2 & p_pos );
+        virtual bool mouseDown( const char p_key );
     private:
         virtual bool draw( void );
     };

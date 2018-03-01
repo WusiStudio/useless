@@ -31,7 +31,7 @@ namespace ROOT_NAMESPACE
 
     bool xgraphical::init ( windowHeader & p_windowHeader )
     {
-
+#ifdef OS_WINDOWS
         static PIXELFORMATDESCRIPTOR s_pfd =
         {
             sizeof ( PIXELFORMATDESCRIPTOR ), //上述格式描述符的大小
@@ -58,13 +58,16 @@ namespace ROOT_NAMESPACE
         SetPixelFormat ( p_windowHeader.hDC, t_PixelFormat, &s_pfd );
 
         p_windowHeader.hRC = wglCreateContext ( p_windowHeader.hDC );
+#endif 
 
         return false;
     }
 
     bool xgraphical::renderStart ( windowHeader & p_windowHeader )
     {
+#ifdef OS_WINDOWS
         wglMakeCurrent ( p_windowHeader.hDC, p_windowHeader.hRC );
+#endif
 
         glClearColor ( 1.0f, 0.0f, 0.0f, 1.0f );
 
@@ -74,7 +77,9 @@ namespace ROOT_NAMESPACE
     }
     bool xgraphical::renderEnd ( windowHeader & p_windowHeader )
     {
+#ifdef OS_WINDOWS
         SwapBuffers ( p_windowHeader.hDC );
+#endif
         wglMakeCurrent ( NULL, NULL );
         return false;
     }
