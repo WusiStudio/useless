@@ -79,9 +79,13 @@ namespace ROOT_NAMESPACE
     typedef struct
     {
     public:
+        xcb_connection_t * xcb_connection;
+        xcb_screen_t  * xcb_screen;
+        xcb_window_t xcb_window;
+        xcb_void_cookie_t xcb_cookie;
        
-        glm::ivec2 xDesktopSize, xWindowSize;
-        float xDesktopRefreshRate, xWindowRefreshRate;
+        // glm::ivec2 xDesktopSize, xWindowSize;
+        // float xDesktopRefreshRate, xWindowRefreshRate;
         
     }windowHeader;
 
