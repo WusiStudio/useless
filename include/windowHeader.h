@@ -5,12 +5,7 @@
 #ifdef OS_WINDOWS
 #include <windows.h>
 #elif defined OS_LINUX
-#include <X11/Xlib.h>
-#include <unistd.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
-#include <X11/extensions/Xrandr.h>		// for resolution changes
+#include <xcb/xcb.h>
 #endif
 
 #include <map>
@@ -84,57 +79,50 @@ namespace ROOT_NAMESPACE
     typedef struct
     {
     public:
-        Display * xDisplay;
-        int xScreen;
-        Colormap xColormap;
-        Visual * xVisual;
-        Window xRoot, xWindow;
-        
+       
         glm::ivec2 xDesktopSize, xWindowSize;
         float xDesktopRefreshRate, xWindowRefreshRate;
         
     }windowHeader;
 
-    extern Atom AtomDeleteWindowCmd, AtomWM_NAME, Atom_NET_WM_BYPASS_COMPOSITOR ;
-
     typedef enum
     {
-        KEY_A				= XK_a,
-        KEY_B				= XK_b,
-        KEY_C				= XK_c,
-        KEY_D				= XK_d,
-        KEY_E				= XK_e,
-        KEY_F				= XK_f,
-        KEY_G				= XK_g,
-        KEY_H				= XK_h,
-        KEY_I				= XK_i,
-        KEY_J				= XK_j,
-        KEY_K				= XK_k,
-        KEY_L				= XK_l,
-        KEY_M				= XK_m,
-        KEY_N				= XK_n,
-        KEY_O				= XK_o,
-        KEY_P				= XK_p,
-        KEY_Q				= XK_q,
-        KEY_R				= XK_r,
-        KEY_S				= XK_s,
-        KEY_T				= XK_t,
-        KEY_U				= XK_u,
-        KEY_V				= XK_v,
-        KEY_W				= XK_w,
-        KEY_X				= XK_x,
-        KEY_Y				= XK_y,
-        KEY_Z				= XK_z,
-        KEY_RETURN			= ( XK_Return & 0xFF ),
-        KEY_TAB				= ( XK_Tab & 0xFF ),
-        KEY_ESCAPE			= ( XK_Escape & 0xFF ),
-        KEY_SHIFT_LEFT		= ( XK_Shift_L & 0xFF ),
-        KEY_CTRL_LEFT		= ( XK_Control_L & 0xFF ),
-        KEY_ALT_LEFT		= ( XK_Alt_L & 0xFF ),
-        KEY_CURSOR_UP		= ( XK_Up & 0xFF ),
-        KEY_CURSOR_DOWN		= ( XK_Down & 0xFF ),
-        KEY_CURSOR_LEFT		= ( XK_Left & 0xFF ),
-        KEY_CURSOR_RIGHT	= ( XK_Right & 0xFF )
+        KEY_A				,//= XK_a,
+        KEY_B				,//= XK_b,
+        KEY_C				,//= XK_c,
+        KEY_D				,//= XK_d,
+        KEY_E				,//= XK_e,
+        KEY_F				,//= XK_f,
+        KEY_G				,//= XK_g,
+        KEY_H				,//= XK_h,
+        KEY_I				,//= XK_i,
+        KEY_J				,//= XK_j,
+        KEY_K				,//= XK_k,
+        KEY_L				,//= XK_l,
+        KEY_M				,//= XK_m,
+        KEY_N				,//= XK_n,
+        KEY_O				,//= XK_o,
+        KEY_P				,//= XK_p,
+        KEY_Q				,//= XK_q,
+        KEY_R				,//= XK_r,
+        KEY_S				,//= XK_s,
+        KEY_T				,//= XK_t,
+        KEY_U				,//= XK_u,
+        KEY_V				,//= XK_v,
+        KEY_W				,//= XK_w,
+        KEY_X				,//= XK_x,
+        KEY_Y				,//= XK_y,
+        KEY_Z				,//= XK_z,
+        KEY_RETURN			,//= ( XK_Return & 0xFF ),
+        KEY_TAB				,//= ( XK_Tab & 0xFF ),
+        KEY_ESCAPE			,//= ( XK_Escape & 0xFF ),
+        KEY_SHIFT_LEFT		,//= ( XK_Shift_L & 0xFF ),
+        KEY_CTRL_LEFT		,//= ( XK_Control_L & 0xFF ),
+        KEY_ALT_LEFT		,//= ( XK_Alt_L & 0xFF ),
+        KEY_CURSOR_UP		,//= ( XK_Up & 0xFF ),
+        KEY_CURSOR_DOWN		,//= ( XK_Down & 0xFF ),
+        KEY_CURSOR_LEFT		,//= ( XK_Left & 0xFF ),
+        KEY_CURSOR_RIGHT	//= ( XK_Right & 0xFF )
     } keyboardKey;
 
     typedef enum
@@ -142,13 +130,6 @@ namespace ROOT_NAMESPACE
         MOUSE_LEFT		= 0,
         MOUSE_RIGHT		= 1
     } mouseButton;
-
-    static bool ChangeVideoMode_XF86VidMode( Display * p_xDisplay, int p_xScreen, Window p_xWindow,
-								int * p_currentWidth, int * p_currentHeight, float * p_currentRefreshRate,
-								int * p_desiredWidth, int * p_desiredHeight, float * p_desiredRefreshRate );
-
-    static int x_error_handler( Display * p_display, XErrorEvent *p_event );
-
 
 
 #endif
