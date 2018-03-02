@@ -3,7 +3,6 @@
 #include "xgraphical.h"
 
 #include <unistd.h>
-#include <xcb/xcb_ewmh.h>
 
 namespace ROOT_NAMESPACE
 {
@@ -71,7 +70,6 @@ namespace ROOT_NAMESPACE
 
     bool window::init( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_fullScreenState, const bool p_centerInDesktop, const bool p_showCursor )
     {
-
         m_Header.xcb_connection = ::xcb_connect( nullptr, nullptr);
 
         if( ::xcb_connection_has_error( m_Header.xcb_connection ) )
