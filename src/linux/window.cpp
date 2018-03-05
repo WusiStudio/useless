@@ -45,11 +45,33 @@ namespace ROOT_NAMESPACE
 
     bool window::setSize( const glm::ivec2 & p_size )
     {
+        if( !m_Header.xcb_connection || !m_Header.xcb_screen )
+        {
+            return true;
+        }
+
+        unsigned int t_datas[2] = { (unsigned int)p_size.x, (unsigned int)p_size.y };
+
+        ::xcb_configure_window(
+            m_Header.xcb_connection,
+            m_Header.xcb_window,
+            XCB_CONFIG_WINDOW_HEIGHT | XCB_CONFIG_WINDOW_WIDTH,
+            t_datas
+        );
+
         return false;
     }
 
     bool window::setPosition( const glm::ivec2 & p_position )
     {
+
+        // xcb_configure_window(
+        //     custard::xcb_connection->get_connection(),
+        //     this->id,
+        //     XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
+        //     data
+        // );
+
         return false;
     }
 
@@ -93,14 +115,17 @@ namespace ROOT_NAMESPACE
                                     XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
                                     XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE };
 
+        glm::ivec2 t_screenSize = GetSystemResolution();
+
         xcb_void_cookie_t gc_cookie = ::xcb_create_window(
             m_Header.xcb_connection,
             XCB_COPY_FROM_PARENT,
             m_Header.xcb_window,
             m_Header.xcb_screen->root,
-            p_position.x, p_position.y,
+            ( t_screenSize.x - p_size.x ) / 2, 
+            ( t_screenSize.y - p_size.y ) / 2,
             p_size.x, p_size.y,
-            10,
+            0,
             XCB_WINDOW_CLASS_INPUT_OUTPUT,
             m_Header.xcb_screen->root_visual,
             mask, values);
@@ -150,71 +175,91 @@ namespace ROOT_NAMESPACE
             case XCB_EXPOSE: {
                 xcb_expose_event_t *expose = (xcb_expose_event_t *)t_event;
 
-                LOG.info ("Window {0} exposed. Region to be redrawn at location ({1}, {2}), with dimension ({3}, {4})",
-                        expose->window, expose->x, expose->y, expose->width, expose->height );
+                // LOG.info ("Window {0} exposed. Region to be redrawn at location ({1}, {2}), with dimension ({3}, {4})",
+                //         expose->window, expose->x, expose->y, expose->width, expose->height );
                 break;
             }
             case XCB_BUTTON_PRESS: {
                 xcb_button_press_event_t *t_bp = (xcb_button_press_event_t *)t_event;
-                print_modifiers (t_bp->state);
+                // print_modifiers (t_bp->state);
 
                 switch (t_bp->detail) {
                 case 4:
-                    LOG.info ("Wheel Button up in window {0}, at coordinates ({1}, {2})",
-                            t_bp->event, t_bp->event_x, t_bp->event_y );
+                    // LOG.info ("Wheel Button up in window {0}, at coordinates ({1}, {2})",
+                    //         t_bp->event, t_bp->event_x, t_bp->event_y );
                     break;
                 case 5:
-                    LOG.info ("Wheel Button down in window {0}, at coordinates ({1}, {2})",
-                            t_bp->event, t_bp->event_x, t_bp->event_y );
+                    // LOG.info ("Wheel Button down in window {0}, at coordinates ({1}, {2})",
+                    //         t_bp->event, t_bp->event_x, t_bp->event_y );
                     break;
                 default:
-                    LOG.info ("Button {0} pressed in window {1}, at coordinates ({2}, {3})",
-                            t_bp->detail, t_bp->event, t_bp->event_x, t_bp->event_y );
+                    // LOG.info ( "Button {0} pressed in window {1}, at coordinates ({2}, {3})",
+                    //         t_bp->detail, t_bp->event, t_bp->event_x, t_bp->event_y );
                     break;
                 }
                 break;
             }
             case XCB_BUTTON_RELEASE: {
                 xcb_button_release_event_t * t_br = (xcb_button_release_event_t *)t_event;
-                print_modifiers(t_br->state);
+                // print_modifiers(t_br->state);
 
-                LOG.info ("Button {0} released in window {1}, at coordinates ({2}, {3})",
-                        t_br->detail, t_br->event, t_br->event_x, t_br->event_y );
+                // LOG.info ( "Button {0} released in window {1}, at coordinates ({2}, {3})",
+                //         t_br->detail, t_br->event, t_br->event_x, t_br->event_y );
                 break;
             }
             case XCB_MOTION_NOTIFY: {
                 xcb_motion_notify_event_t * t_motion = (xcb_motion_notify_event_t *)t_event;
 
-                LOG.info ("Mouse moved in window {0}, at coordinates ({1}, {2})",
-                        t_motion->event, t_motion->event_x, t_motion->event_y );
+                // LOG.info ( "Mouse moved in window {0}, at coordinates ({1}, {2})",
+                //         t_motion->event, t_motion->event_x, t_motion->event_y );
                 break;
             }
             case XCB_ENTER_NOTIFY: {
                 xcb_enter_notify_event_t * t_enter = (xcb_enter_notify_event_t *)t_event;
 
-                LOG.info ("Mouse entered window {0}, at coordinates ({1}, {2})",
-                        t_enter->event, t_enter->event_x, t_enter->event_y );
+                // LOG.info ("Mouse entered window {0}, at coordinates ({1}, {2})",
+                //         t_enter->event, t_enter->event_x, t_enter->event_y );
                 break;
             }
             case XCB_LEAVE_NOTIFY: {
                 xcb_leave_notify_event_t * t_leave = (xcb_leave_notify_event_t *)t_event;
 
-                LOG.info ("Mouse left window {0}, at coordinates ({1}, {2})",
-                        t_leave->event, t_leave->event_x, t_leave->event_y );
+                // LOG.info ("Mouse left window {0}, at coordinates ({1}, {2})",
+                //         t_leave->event, t_leave->event_x, t_leave->event_y );
                 break;
             }
             case XCB_KEY_PRESS: {
                 xcb_key_press_event_t * t_kp = (xcb_key_press_event_t *)t_event;
-                print_modifiers( t_kp->state );
+                // print_modifiers( t_kp->state );
 
-                LOG.info ("Key pressed in window {0}", t_kp->event);
+                switch( t_kp->detail )
+                {
+                    case KEY_ESCAPE:
+                        m_Run = false;
+                    return false;
+
+                    case KEY_R:
+                        setSize( glm::ivec2( 1920, 1080 ) );
+                    break;
+
+                    case KEY_T:
+                        setSize( glm::ivec2( 1360, 768 ) );
+                    break;
+
+                    case KEY_H:
+                        glm::ivec2 t_windowSize = GetSystemResolution();
+                        LOG.info( "window size({0}, {1})", t_windowSize.x, t_windowSize.y );
+                    break;
+                }
+
+                LOG.info ("Key:({0}) pressed in window {1}", (int)t_kp->detail, t_kp->event);
                 break;
             }
             case XCB_KEY_RELEASE: {
                 xcb_key_release_event_t * t_kr = (xcb_key_release_event_t *)t_event;
                 print_modifiers( t_kr->state );
 
-                LOG.info ("Key released in window {0}", t_kr->event);
+                // LOG.info ("Key released in window {0}", t_kr->event);
                 break;
             }
             default:
