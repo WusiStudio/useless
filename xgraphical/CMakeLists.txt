@@ -12,6 +12,8 @@ endif()
 
 add_library( ${PROJECT_NAME} ${SRCS} )
 
-if(BE_BASED_ON_OPENGL)
-target_link_libraries(${PROJECT_NAME} opengl32)
+if(BE_BASED_ON_OPENGL AND (CMAKE_SYSTEM_NAME MATCHES "Windows"))
+    target_link_libraries(${PROJECT_NAME} opengl32)
+elseif( BE_BASED_ON_OPENGL AND (CMAKE_SYSTEM_NAME MATCHES "Linux"))
+    target_link_libraries(${PROJECT_NAME} GL)
 endif()

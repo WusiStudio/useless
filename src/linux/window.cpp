@@ -1,6 +1,8 @@
 #include "window.h"
 #include "tools/log.hpp"
 #include "xgraphical.h"
+#include <xcb/xcb_icccm.h>
+#include <xcb/xcb_ewmh.h>
 
 #include <unistd.h>
 
@@ -50,14 +52,10 @@ namespace ROOT_NAMESPACE
             return true;
         }
 
-        unsigned int t_datas[2] = { (unsigned int)p_size.x, (unsigned int)p_size.y };
+        uint32_t t_mask = XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+        uint32_t t_values[2] = { (uint32_t)p_size.x, (uint32_t)p_size.y };
 
-        ::xcb_configure_window(
-            m_Header.xcb_connection,
-            m_Header.xcb_window,
-            XCB_CONFIG_WINDOW_HEIGHT | XCB_CONFIG_WINDOW_WIDTH,
-            t_datas
-        );
+        xcb_configure_window( m_Header.xcb_connection, m_Header.xcb_window, t_mask, t_values );
 
         return false;
     }
@@ -65,13 +63,16 @@ namespace ROOT_NAMESPACE
     bool window::setPosition( const glm::ivec2 & p_position )
     {
 
-        // xcb_configure_window(
-        //     custard::xcb_connection->get_connection(),
-        //     this->id,
-        //     XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
-        //     data
-        // );
+        if( !m_Header.xcb_connection || !m_Header.xcb_screen )
+        {
+            return true;
+        }
 
+        uint32_t t_mask = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y;
+        uint32_t t_values[2] = { (uint32_t)p_position.x, (uint32_t)p_position.y };
+
+        xcb_configure_window( m_Header.xcb_connection, m_Header.xcb_window, t_mask, t_values );
+        
         return false;
     }
 
@@ -92,6 +93,7 @@ namespace ROOT_NAMESPACE
 
     bool window::init( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_fullScreenState, const bool p_centerInDesktop, const bool p_showCursor )
     {
+        glm::ivec2 t_position = p_position;
         m_Header.xcb_connection = ::xcb_connect( nullptr, nullptr);
 
         if( ::xcb_connection_has_error( m_Header.xcb_connection ) )
@@ -115,15 +117,22 @@ namespace ROOT_NAMESPACE
                                     XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
                                     XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE };
 
-        glm::ivec2 t_screenSize = GetSystemResolution();
+        if( p_centerInDesktop )
+        {
+            glm::ivec2 t_screenSize = GetSystemResolution();
+            t_position = glm::ivec2( (t_screenSize.x - p_size.x) / 2, ( t_screenSize.y - p_size.y ) / 2 );
+        }
+        
+
+        LOG.info( "window position: ({0}, {1})", t_position.x, t_position.y );
 
         xcb_void_cookie_t gc_cookie = ::xcb_create_window(
             m_Header.xcb_connection,
             XCB_COPY_FROM_PARENT,
             m_Header.xcb_window,
             m_Header.xcb_screen->root,
-            ( t_screenSize.x - p_size.x ) / 2, 
-            ( t_screenSize.y - p_size.y ) / 2,
+            t_position.x, 
+            t_position.y,
             p_size.x, p_size.y,
             0,
             XCB_WINDOW_CLASS_INPUT_OUTPUT,
@@ -142,10 +151,21 @@ namespace ROOT_NAMESPACE
                             XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8,
                             p_title.size(), p_title.c_str() );
 
-        // xcb_ewmh_connection_t EWMH;
-        // xcb_intern_atom_cookie_t * EWMHCookie = xcb_ewmh_init_atoms( m_Header.xcb_connection, &EWMH );
-        // xcb_ewmh_init_atoms_replies(&EWMH, EWMHCookie, NULL);
-        // xcb_change_property( m_Header.xcb_connection, XCB_PROP_MODE_REPLACE, m_Header.xcb_window, EWMH._NET_WM_STATE, XCB_ATOM, 32, 1, &(EWMH._NET_WM_STATE_FULLSCREEN) ); 
+        xcb_size_hints_t t_size;
+
+        t_size.flags = XCB_ICCCM_SIZE_HINT_P_POSITION
+            | XCB_ICCCM_SIZE_HINT_US_POSITION
+            | XCB_ICCCM_SIZE_HINT_US_SIZE
+            | XCB_ICCCM_SIZE_HINT_P_SIZE
+            | XCB_ICCCM_SIZE_HINT_P_MIN_SIZE
+            | XCB_ICCCM_SIZE_HINT_P_MAX_SIZE
+            | XCB_ICCCM_SIZE_HINT_P_WIN_GRAVITY;
+        t_size.x = t_position.x;
+        t_size.y = t_position.y;
+        t_size.width  = t_size.max_width  = t_size.min_width  = p_size.x;
+        t_size.height = t_size.max_height = t_size.min_height = p_size.y;
+        t_size.win_gravity = XCB_GRAVITY_STATIC;
+        ::xcb_icccm_set_wm_size_hints( m_Header.xcb_connection, m_Header.xcb_window, XCB_ATOM_WM_NORMAL_HINTS, &t_size);
 
         ::xcb_map_window( m_Header.xcb_connection, m_Header.xcb_window );
         ::xcb_flush( m_Header.xcb_connection );

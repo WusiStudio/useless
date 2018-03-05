@@ -1,6 +1,6 @@
 #include "xgraphical.h"
 
-#include <GL\gl.h>                        //必要的头文件
+#include <GL/gl.h>                        //必要的头文件
 
 namespace ROOT_NAMESPACE
 {

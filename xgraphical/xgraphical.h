@@ -3,7 +3,7 @@
 #define __X_GRAPHICAL_HPP__
 
 #include "windowHeader.h"
-#include "imemory\object.hpp"
+#include "imemory/object.hpp"
 
 namespace ROOT_NAMESPACE
 {
