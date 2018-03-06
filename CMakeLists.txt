@@ -59,7 +59,7 @@ add_subdirectory(xgraphical)
 add_library(${PROJECT_NAME} ${SRCS})
 
 if((CMAKE_SYSTEM_NAME MATCHES "Linux") OR (${CYGWIN}))
-    target_link_libraries(${PROJECT_NAME} uuid xcb xcb-ewmh xcb-icccm)
+    target_link_libraries(${PROJECT_NAME} uuid xcb)
 endif()
 
 target_link_libraries(${PROJECT_NAME} xgraphical)

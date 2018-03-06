@@ -1,8 +1,6 @@
 #include "window.h"
 #include "tools/log.hpp"
 #include "xgraphical.h"
-#include <xcb/xcb_icccm.h>
-#include <xcb/xcb_ewmh.h>
 
 #include <unistd.h>
 
@@ -57,6 +55,8 @@ namespace ROOT_NAMESPACE
 
         xcb_configure_window( m_Header.xcb_connection, m_Header.xcb_window, t_mask, t_values );
 
+        ::xcb_flush( m_Header.xcb_connection );
+
         return false;
     }
 
@@ -72,6 +72,8 @@ namespace ROOT_NAMESPACE
         uint32_t t_values[2] = { (uint32_t)p_position.x, (uint32_t)p_position.y };
 
         xcb_configure_window( m_Header.xcb_connection, m_Header.xcb_window, t_mask, t_values );
+
+        ::xcb_flush( m_Header.xcb_connection );
         
         return false;
     }
@@ -88,6 +90,12 @@ namespace ROOT_NAMESPACE
 
     bool window::setFullScreenState( const bool p_fullScreenState )
     {
+
+        if( !m_Header.xcb_connection || !m_Header.xcb_screen )
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -111,7 +119,7 @@ namespace ROOT_NAMESPACE
 
         m_Header.xcb_window = ::xcb_generate_id( m_Header.xcb_connection );
         uint32_t     mask      = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-        uint32_t     values[2] = {  m_Header.xcb_screen->white_pixel,
+        uint32_t     values[3] = {  m_Header.xcb_screen->white_pixel,
                                     XCB_EVENT_MASK_EXPOSURE       | XCB_EVENT_MASK_BUTTON_PRESS   |
                                     XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
                                     XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
@@ -151,24 +159,10 @@ namespace ROOT_NAMESPACE
                             XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8,
                             p_title.size(), p_title.c_str() );
 
-        xcb_size_hints_t t_size;
-
-        t_size.flags = XCB_ICCCM_SIZE_HINT_P_POSITION
-            | XCB_ICCCM_SIZE_HINT_US_POSITION
-            | XCB_ICCCM_SIZE_HINT_US_SIZE
-            | XCB_ICCCM_SIZE_HINT_P_SIZE
-            | XCB_ICCCM_SIZE_HINT_P_MIN_SIZE
-            | XCB_ICCCM_SIZE_HINT_P_MAX_SIZE
-            | XCB_ICCCM_SIZE_HINT_P_WIN_GRAVITY;
-        t_size.x = t_position.x;
-        t_size.y = t_position.y;
-        t_size.width  = t_size.max_width  = t_size.min_width  = p_size.x;
-        t_size.height = t_size.max_height = t_size.min_height = p_size.y;
-        t_size.win_gravity = XCB_GRAVITY_STATIC;
-        ::xcb_icccm_set_wm_size_hints( m_Header.xcb_connection, m_Header.xcb_window, XCB_ATOM_WM_NORMAL_HINTS, &t_size);
-
         ::xcb_map_window( m_Header.xcb_connection, m_Header.xcb_window );
         ::xcb_flush( m_Header.xcb_connection );
+
+        setPosition( t_position );
         
         return false;
     }
@@ -260,10 +254,18 @@ namespace ROOT_NAMESPACE
 
                     case KEY_R:
                         setSize( glm::ivec2( 1920, 1080 ) );
+
+                        setPosition( ( GetSystemResolution() - glm::ivec2( 1920, 1080 ) ) / 2 );
                     break;
 
                     case KEY_T:
                         setSize( glm::ivec2( 1360, 768 ) );
+
+                        setPosition( ( GetSystemResolution() - glm::ivec2( 1360, 768 ) ) / 2 );
+                    break;
+
+                    case KEY_F:
+                        setFullScreenState( true );
                     break;
 
                     case KEY_H:
@@ -298,8 +300,14 @@ namespace ROOT_NAMESPACE
     {
         CALL( object::destroy() );
 
+
+        
+
         if( m_Header.xcb_connection )
         {
+            unsigned int t_values[] = { XCB_EVENT_MASK_NO_EVENT };
+            ::xcb_change_window_attributes( m_Header.xcb_connection, m_Header.xcb_window, XCB_CW_EVENT_MASK, t_values );
+
             ::xcb_disconnect( m_Header.xcb_connection );
             m_Header.xcb_connection = nullptr;
         }
