@@ -6,6 +6,8 @@
 
 namespace ROOT_NAMESPACE
 {
+
+    xcb_atom_t getAtom( xcb_connection_t * p_connect, const std::string & p_AtomName );
     
     void print_modifiers (uint32_t mask)
     {
@@ -37,9 +39,11 @@ namespace ROOT_NAMESPACE
 
     bool window::setTitle( const std::string & p_title )
     {
-        xcb_change_property( m_Header.xcb_connection, XCB_PROP_MODE_REPLACE, m_Header.xcb_window,
+        ::xcb_change_property( m_Header.xcb_connection, XCB_PROP_MODE_REPLACE, m_Header.xcb_window,
                             XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8,
                             p_title.size(), p_title.c_str() );
+
+        ::xcb_flush( m_Header.xcb_connection );
         return false;
     }
 
@@ -117,13 +121,33 @@ namespace ROOT_NAMESPACE
             return true;
         }
 
+        /* Create XID's for colormap */
+        xcb_colormap_t colormap = ::xcb_generate_id( m_Header.xcb_connection  );
+
+        ::xcb_create_colormap(
+            m_Header.xcb_connection,
+            XCB_COLORMAP_ALLOC_NONE,
+            colormap,
+            m_Header.xcb_screen->root,
+            m_Header.xcb_screen->root_visual 
+            );
+
+        xcb_alloc_color_reply_t *rep = xcb_alloc_color_reply ( m_Header.xcb_connection, xcb_alloc_color ( m_Header.xcb_connection, colormap, 65535, 0, 0 ), NULL );
+
+        if ( !rep )
+        {
+            LOG.error( "alloc color reply fiald" );
+            return true;
+        }
+            
+
         m_Header.xcb_window = ::xcb_generate_id( m_Header.xcb_connection );
-        uint32_t     mask      = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-        uint32_t     values[3] = {  m_Header.xcb_screen->white_pixel,
-                                    XCB_EVENT_MASK_EXPOSURE       | XCB_EVENT_MASK_BUTTON_PRESS   |
+        uint32_t     mask      =  XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
+        uint32_t     values[] = {   XCB_EVENT_MASK_EXPOSURE       | XCB_EVENT_MASK_BUTTON_PRESS   |
                                     XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
                                     XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW   |
-                                    XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE };
+                                    XCB_EVENT_MASK_KEY_PRESS      | XCB_EVENT_MASK_KEY_RELEASE,
+                                    colormap, 0 };
 
         if( p_centerInDesktop )
         {
@@ -155,7 +179,7 @@ namespace ROOT_NAMESPACE
         }
 
         /* set the title of the window */
-        xcb_change_property( m_Header.xcb_connection, XCB_PROP_MODE_REPLACE, m_Header.xcb_window,
+        ::xcb_change_property( m_Header.xcb_connection, XCB_PROP_MODE_REPLACE, m_Header.xcb_window,
                             XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8,
                             p_title.size(), p_title.c_str() );
 
@@ -184,41 +208,42 @@ namespace ROOT_NAMESPACE
         
         while ( (t_event = ::xcb_wait_for_event ( m_Header.xcb_connection )) && m_Run )
         {
-
             switch ( t_event->response_type & ~0x80 ) {
             case XCB_EXPOSE: {
                 xcb_expose_event_t *expose = (xcb_expose_event_t *)t_event;
 
-                // LOG.info ("Window {0} exposed. Region to be redrawn at location ({1}, {2}), with dimension ({3}, {4})",
-                //         expose->window, expose->x, expose->y, expose->width, expose->height );
+                m_Size = glm::ivec2( expose->width, expose->height );
+
+                LOG.info ("Window {0} exposed. Region to be redrawn at location ({1}, {2}), with dimension ({3}, {4})",
+                        expose->window, expose->x, expose->y, expose->width, expose->height );
                 break;
             }
             case XCB_BUTTON_PRESS: {
                 xcb_button_press_event_t *t_bp = (xcb_button_press_event_t *)t_event;
-                // print_modifiers (t_bp->state);
+                print_modifiers (t_bp->state);
 
                 switch (t_bp->detail) {
                 case 4:
-                    // LOG.info ("Wheel Button up in window {0}, at coordinates ({1}, {2})",
-                    //         t_bp->event, t_bp->event_x, t_bp->event_y );
+                    LOG.info ("Wheel Button up in window {0}, at coordinates ({1}, {2})",
+                            t_bp->event, t_bp->event_x, t_bp->event_y );
                     break;
                 case 5:
-                    // LOG.info ("Wheel Button down in window {0}, at coordinates ({1}, {2})",
-                    //         t_bp->event, t_bp->event_x, t_bp->event_y );
+                    LOG.info ("Wheel Button down in window {0}, at coordinates ({1}, {2})",
+                            t_bp->event, t_bp->event_x, t_bp->event_y );
                     break;
                 default:
-                    // LOG.info ( "Button {0} pressed in window {1}, at coordinates ({2}, {3})",
-                    //         t_bp->detail, t_bp->event, t_bp->event_x, t_bp->event_y );
+                    LOG.info ( "Button {0} pressed in window {1}, at coordinates ({2}, {3})",
+                            t_bp->detail, t_bp->event, t_bp->event_x, t_bp->event_y );
                     break;
                 }
                 break;
             }
             case XCB_BUTTON_RELEASE: {
                 xcb_button_release_event_t * t_br = (xcb_button_release_event_t *)t_event;
-                // print_modifiers(t_br->state);
+                print_modifiers(t_br->state);
 
-                // LOG.info ( "Button {0} released in window {1}, at coordinates ({2}, {3})",
-                //         t_br->detail, t_br->event, t_br->event_x, t_br->event_y );
+                LOG.info ( "Button {0} released in window {1}, at coordinates ({2}, {3})",
+                        t_br->detail, t_br->event, t_br->event_x, t_br->event_y );
                 break;
             }
             case XCB_MOTION_NOTIFY: {
@@ -269,8 +294,11 @@ namespace ROOT_NAMESPACE
                     break;
 
                     case KEY_H:
-                        glm::ivec2 t_windowSize = GetSystemResolution();
-                        LOG.info( "window size({0}, {1})", t_windowSize.x, t_windowSize.y );
+                        LOG.info( "window size({0}, {1})", GetSystemResolution().x, GetSystemResolution().y );
+                    break;
+
+                    case KEY_S:
+                        setTitle("------------");
                     break;
                 }
 
@@ -314,4 +342,23 @@ namespace ROOT_NAMESPACE
             
         return false;
     }
+
+    xcb_atom_t getAtom( xcb_connection_t * p_connect, const std::string & p_AtomName )
+    {
+        xcb_intern_atom_cookie_t t_atom_cookie;
+        xcb_atom_t t_result;
+        xcb_intern_atom_reply_t * t_rep;
+
+        t_atom_cookie = xcb_intern_atom( p_connect, 0, p_AtomName.size(), p_AtomName.c_str() );
+        t_rep = xcb_intern_atom_reply( p_connect, t_atom_cookie, NULL );
+        if ( !t_rep )
+        {
+            return 0;
+        }
+
+        t_result = t_rep->atom;
+        free(t_rep);
+        return t_result;        
+    }
+
 }

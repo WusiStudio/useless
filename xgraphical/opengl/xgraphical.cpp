@@ -58,6 +58,11 @@ namespace ROOT_NAMESPACE
         SetPixelFormat ( p_windowHeader.hDC, t_PixelFormat, &s_pfd );
 
         p_windowHeader.hRC = wglCreateContext ( p_windowHeader.hDC );
+
+#elif OS_LINUX
+
+    
+
 #endif 
 
         return false;
