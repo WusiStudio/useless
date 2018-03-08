@@ -6,6 +6,8 @@
 #include <windows.h>
 #elif defined OS_LINUX
 #include <xcb/xcb.h>
+#include <X11/Xlib.h>
+#include <GL/glx.h>
 #endif
 
 #include <map>
@@ -83,6 +85,13 @@ namespace ROOT_NAMESPACE
         xcb_screen_t  * xcb_screen;
         xcb_window_t xcb_window;
         xcb_void_cookie_t xcb_cookie;
+
+        Display * x_display;
+        int x_default_screen;
+
+        GLXFBConfig x_fb_config;
+
+        xcb_atom_t xcb_atom_wm_protocals, xcb_atom_delete_window;
        
         // glm::ivec2 xDesktopSize, xWindowSize;
         // float xDesktopRefreshRate, xWindowRefreshRate;
@@ -131,8 +140,11 @@ namespace ROOT_NAMESPACE
 
     typedef enum
     {
-        MOUSE_LEFT		= 0,
-        MOUSE_RIGHT		= 1
+        MOUSE_LEFT		= 1,
+        MOUSE_CENTER    = 2,
+        MOUSE_RIGHT		= 3,
+        MOUSE_UP        = 4,
+        MOUSE_DOWN      = 5
     } mouseButton;
 
 

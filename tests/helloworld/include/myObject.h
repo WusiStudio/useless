@@ -8,11 +8,11 @@ class myObject : public ROOT_NAMESPACE::object
 {
 public:
     CREATEFUNC(myObject);
+
+    virtual bool destroy( void ) override;
 protected:
 
     virtual bool init( void ) override;
-
-    virtual bool destroy( void ) override;
 
     myObject( void );
     ~myObject( void );

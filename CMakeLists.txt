@@ -18,13 +18,13 @@ option(BE_BASED_ON_DIRECT3D_12 "" OFF)
 
 option(BUILD_UNIT_TESTS "" ON)
 
-
 #设置编译选项-------------------------------------------
 if ((CMAKE_SYSTEM_NAME MATCHES "Linux") OR (${CYGWIN}))
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -m64 -std=c++11 -O0 -Wall -g")
     set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -m64 -std=c++11 -O3 -Wall")
     add_compile_options(-DCHAR_SET="UTF-8")
     add_compile_options(-DOS_LINUX)
+    option(OS_LINUX "" ON )
     aux_source_directory(src/linux SRCS)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")  
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")
@@ -32,6 +32,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_compile_options(/source-charset:utf-8)
     add_compile_options(-DCHAR_SET="GBK")
     add_compile_options(-DOS_WINDOWS)
+    option(OS_WINDOWS "" ON)
     aux_source_directory(src/windows SRCS)
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -m64 -O0 -Wall -g")
@@ -41,6 +42,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     add_compile_options(-m64)
     add_compile_options(-DCHAR_SET="UTF-8")
     add_compile_options(-DOS_Darwin)
+    option(OS_Darwin "" ON)
     aux_source_directory(src/osx SRCS)
 elseif (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
 endif()
@@ -58,9 +60,9 @@ add_subdirectory(xgraphical)
 
 add_library(${PROJECT_NAME} ${SRCS})
 
-if((CMAKE_SYSTEM_NAME MATCHES "Linux") OR (${CYGWIN}))
-    target_link_libraries(${PROJECT_NAME} uuid xcb xcb-glx)
-endif()
+if(OS_LINUX)
+    target_link_libraries(${PROJECT_NAME} uuid xcb x11 x11-xcb)
+endif(OS_LINUX)
 
 target_link_libraries(${PROJECT_NAME} xgraphical)
 
