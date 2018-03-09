@@ -61,7 +61,7 @@ add_subdirectory(xgraphical)
 add_library(${PROJECT_NAME} ${SRCS})
 
 if(OS_LINUX)
-    target_link_libraries(${PROJECT_NAME} uuid xcb x11 x11-xcb)
+    target_link_libraries(${PROJECT_NAME} uuid xcb X11 X11-xcb)
 endif(OS_LINUX)
 
 target_link_libraries(${PROJECT_NAME} xgraphical)

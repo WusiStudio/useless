@@ -80,7 +80,7 @@ namespace ROOT_NAMESPACE
     bool xgraphical::renderStart ( windowHeader & p_windowHeader )
     {
 
-        glClearColor(0.2, 0.4, 0.9, 1.0);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear( GL_COLOR_BUFFER_BIT );
 
         return false;
