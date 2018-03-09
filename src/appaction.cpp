@@ -10,6 +10,7 @@ namespace ROOT_NAMESPACE
 
     int appaction::exec( void )
     {
+        IMSTACK
         if( !m_window )
         {
             bindWindow( window::Create( "window", glm::ivec2( 800, 600 ), false ) );

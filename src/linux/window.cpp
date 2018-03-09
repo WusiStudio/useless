@@ -104,16 +104,16 @@ namespace ROOT_NAMESPACE
         if( p_fullScreenState )
         {
             m_fullscreenAfterSize = m_Size;
-            setSize( GetSystemResolution() );
             setPosition( glm::ivec2( 0 ) );
+            setSize( GetSystemResolution() );
         }else
         {
-            setSize( m_fullscreenAfterSize );
             setPosition( ( GetSystemResolution() - m_fullscreenAfterSize ) / 2 );
+            setSize( m_fullscreenAfterSize );
         }
-            
-        
 
+        m_FullScreenState = p_fullScreenState;
+            
         // xcb_intern_atom_cookie_t t_wmStateAddCookie = xcb_intern_atom_unchecked( m_Header.xcb_connection, 1, 12, "_NET_WM_STATE" );
         // xcb_intern_atom_reply_t* t_wmStateAddReply = xcb_intern_atom_reply( m_Header.xcb_connection, t_wmStateAddCookie, 0);
 
