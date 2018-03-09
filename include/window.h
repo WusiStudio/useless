@@ -45,14 +45,15 @@ namespace ROOT_NAMESPACE
         bool setCursorPos( const glm::ivec2 & p_cursorPos );
         bool setFullScreenState( const bool p_fullScreenState );
 
-        virtual bool destroy( void ) override;
-
     protected:
         window();
         virtual ~window();
 
         virtual bool init( void ) override;
         virtual bool init( const std::string & p_title, const glm::ivec2 & p_size, const glm::ivec2 & p_position, const bool p_fullScreenState = false, const bool p_centerInDesktop = false, const bool p_showCursor = true );
+
+
+        virtual bool destroy( void ) override;
 
     private:
 
@@ -63,6 +64,9 @@ namespace ROOT_NAMESPACE
         bool m_Active;
         bool m_Minimized;
         bool m_CenterInDesktop;
+
+        glm::ivec2 m_fullscreenAfterSize;
+
         windowHeader m_Header;
         windowInput m_Input;
         xgraphical * m_Xgraphical;

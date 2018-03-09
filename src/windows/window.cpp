@@ -407,6 +407,8 @@ namespace ROOT_NAMESPACE
     {
         CALL( object::destroy() );
 
+        m_Xgraphical->release();
+
         if( m_FullScreenState )
         {
             ChangeDisplaySettingsA( NULL, 0 );

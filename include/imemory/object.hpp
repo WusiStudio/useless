@@ -107,10 +107,11 @@ namespace ROOT_NAMESPACE
         //引用减一
         virtual void release( void ) override;
 
-        virtual bool destroy( void ) override;
     protected:
 
         virtual bool init( void ) override;
+
+        virtual bool destroy( void ) override;
 
 		object ( void );
 

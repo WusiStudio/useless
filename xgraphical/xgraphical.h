@@ -19,11 +19,12 @@ namespace ROOT_NAMESPACE
         bool renderStart ( windowHeader & p_windowHeader );
         bool renderEnd ( windowHeader & p_windowHeader );
 
-         virtual bool destroy( void ) override;
     protected:
         CREATEFUNC ( xgraphical );
         virtual bool init ( void ) override;
         virtual bool init ( windowHeader & p_windowHeader );
+
+        virtual bool destroy( void ) override;
         
         xgraphical ( void );
         virtual ~xgraphical ( void );

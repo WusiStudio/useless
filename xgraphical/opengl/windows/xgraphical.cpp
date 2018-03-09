@@ -61,11 +61,18 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
+    bool xgraphical::destroy( void )
+    {
+        CALL( object::destroy() );
+
+        return false;
+    }
+
     bool xgraphical::renderStart ( windowHeader & p_windowHeader )
     {
         wglMakeCurrent ( p_windowHeader.hDC, p_windowHeader.hRC );
 
-        glClearColor ( 1.0f, 0.0f, 0.0f, 1.0f );
+        glClearColor ( 0.0f, 0.0f, 0.0f, 1.0f );
 
         glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 

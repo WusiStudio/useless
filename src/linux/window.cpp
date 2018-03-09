@@ -96,22 +96,35 @@ namespace ROOT_NAMESPACE
     bool window::setFullScreenState( const bool p_fullScreenState )
     {
 
-        if( !m_Header.xcb_connection || !m_Header.xcb_screen )
+        if( !m_Header.xcb_connection || !m_Header.xcb_screen || m_FullScreenState == p_fullScreenState )
         {
             return true;
         }
 
-        xcb_intern_atom_cookie_t t_wmStateAddCookie = xcb_intern_atom_unchecked( m_Header.xcb_connection, 1, 12, "_NET_WM_STATE" );
-        xcb_intern_atom_reply_t* t_wmStateAddReply = xcb_intern_atom_reply( m_Header.xcb_connection, t_wmStateAddCookie, 0);
+        if( p_fullScreenState )
+        {
+            m_fullscreenAfterSize = m_Size;
+            setSize( GetSystemResolution() );
+            setPosition( glm::ivec2( 0 ) );
+        }else
+        {
+            setSize( m_fullscreenAfterSize );
+            setPosition( ( GetSystemResolution() - m_fullscreenAfterSize ) / 2 );
+        }
+            
+        
 
-        xcb_intern_atom_cookie_t t_fullScreenCookie = xcb_intern_atom_unchecked( m_Header.xcb_connection, 1, 24, "_NET_WM_STATE_FULLSCREEN" );
-        xcb_intern_atom_reply_t* t_fullScreenReply = xcb_intern_atom_reply( m_Header.xcb_connection, t_fullScreenCookie, 0);
-        xcb_change_property( m_Header.xcb_connection, XCB_PROP_MODE_REPLACE, m_Header.xcb_window, t_fullScreenReply->atom, 4, 32, 1, &( t_fullScreenReply->atom ) );
-        free( t_fullScreenReply );
-        free( t_wmStateAddReply );
+        // xcb_intern_atom_cookie_t t_wmStateAddCookie = xcb_intern_atom_unchecked( m_Header.xcb_connection, 1, 12, "_NET_WM_STATE" );
+        // xcb_intern_atom_reply_t* t_wmStateAddReply = xcb_intern_atom_reply( m_Header.xcb_connection, t_wmStateAddCookie, 0);
+
+        // xcb_intern_atom_cookie_t t_fullScreenCookie = xcb_intern_atom_unchecked( m_Header.xcb_connection, 1, 24, "_NET_WM_STATE_FULLSCREEN" );
+        // xcb_intern_atom_reply_t* t_fullScreenReply = xcb_intern_atom_reply( m_Header.xcb_connection, t_fullScreenCookie, 0);
+        // xcb_change_property( m_Header.xcb_connection, XCB_PROP_MODE_REPLACE, m_Header.xcb_window, t_fullScreenReply->atom, 4, 32, 1, &( t_fullScreenReply->atom ) );
+        // free( t_fullScreenReply );
+        // free( t_wmStateAddReply );
 
 
-        LOG.info("--------------");
+        // LOG.info("--------------");
 
         return false;
     }
@@ -413,7 +426,7 @@ namespace ROOT_NAMESPACE
     {
         CALL( object::destroy() );
 
-        CALL( m_Xgraphical->destroy() );
+        m_Xgraphical->release();
 
         if( m_Header.xcb_connection )
         {
