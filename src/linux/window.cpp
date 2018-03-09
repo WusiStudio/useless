@@ -90,7 +90,7 @@ namespace ROOT_NAMESPACE
 
     const bool window::processEvent( void )
     {
-        t_event = ::xcb_poll_for_event( m_Header.xcb_connection );
+        xcb_generic_event_t * t_event = ::xcb_poll_for_event( m_Header.xcb_connection );
 
         if( t_event )
         {
@@ -366,8 +366,6 @@ namespace ROOT_NAMESPACE
     bool window::run( void )
     {
         m_Run = true;
-        xcb_generic_event_t * t_event;
-        
         while ( m_Run )
         {
             if( processEvent() )
