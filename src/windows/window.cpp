@@ -357,7 +357,7 @@ namespace ROOT_NAMESPACE
             if( m_Input.keyInput[KEY_ESCAPE] )
             {
                 m_Run = false;
-                return false;
+                break;
             }
 
             if( m_Input.keyInput[KEY_N] )

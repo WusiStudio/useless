@@ -90,6 +90,95 @@ namespace ROOT_NAMESPACE
 
     const bool window::processEvent( void )
     {
+        t_event = ::xcb_poll_for_event( m_Header.xcb_connection );
+
+        if( t_event )
+        {
+            switch ( t_event->response_type & ~0x80 ) {
+            case XCB_EXPOSE: {
+                xcb_expose_event_t *expose = (xcb_expose_event_t *)t_event;
+
+                m_Size = glm::ivec2( expose->width, expose->height );
+
+                LOG.info ("Window {0} exposed. Region to be redrawn at location ({1}, {2}), with dimension ({3}, {4})",
+                        expose->window, expose->x, expose->y, expose->width, expose->height );
+                break;
+            }
+            case XCB_BUTTON_PRESS: {
+                xcb_button_press_event_t *t_bp = (xcb_button_press_event_t *)t_event;
+                // print_modifiers (t_bp->state);
+
+                LOG.info ( "Button {0} pressed in window {1}, at coordinates ({2}, {3})",
+                            t_bp->detail, t_bp->event, t_bp->event_x, t_bp->event_y );
+
+                m_Input.mouseInput[ t_bp->detail ] = true;
+                m_Input.mouseInputX[ t_bp->detail ] = t_bp->event_x;
+                m_Input.mouseInputY[ t_bp->detail ] = t_bp->event_y;
+                break;
+            }
+            case XCB_BUTTON_RELEASE: {
+                xcb_button_release_event_t * t_br = (xcb_button_release_event_t *)t_event;
+                print_modifiers(t_br->state);
+
+                LOG.info ( "Button {0} released in window {1}, at coordinates ({2}, {3})",
+                        t_br->detail, t_br->event, t_br->event_x, t_br->event_y );
+                break;
+            }
+            case XCB_MOTION_NOTIFY: {
+                xcb_motion_notify_event_t * t_motion = (xcb_motion_notify_event_t *)t_event;
+
+                m_CursorPosition = glm::ivec2( t_motion->event_x, t_motion->event_y );
+                // LOG.info ( "Mouse moved in window {0}, at coordinates ({1}, {2})",
+                //         t_motion->event, t_motion->event_x, t_motion->event_y );
+                break;
+            }
+            case XCB_ENTER_NOTIFY: {
+                xcb_enter_notify_event_t * t_enter = (xcb_enter_notify_event_t *)t_event;
+
+                // LOG.info ("Mouse entered window {0}, at coordinates ({1}, {2})",
+                //         t_enter->event, t_enter->event_x, t_enter->event_y );
+                break;
+            }
+            case XCB_LEAVE_NOTIFY: {
+                xcb_leave_notify_event_t * t_leave = (xcb_leave_notify_event_t *)t_event;
+
+                // LOG.info ("Mouse left window {0}, at coordinates ({1}, {2})",
+                //         t_leave->event, t_leave->event_x, t_leave->event_y );
+                break;
+            }
+            case XCB_KEY_PRESS: {
+                xcb_key_press_event_t * t_kp = (xcb_key_press_event_t *)t_event;
+
+                m_Input.keyInput[t_kp->detail] = true;
+
+                LOG.info ("Key:({0}) pressed in window {1}", (int)t_kp->detail, t_kp->event);
+                break;
+            }
+            case XCB_KEY_RELEASE: {
+                xcb_key_release_event_t * t_kr = (xcb_key_release_event_t *)t_event;
+                print_modifiers( t_kr->state );
+
+                // LOG.info ("Key released in window {0}", t_kr->event);
+                break;
+            }
+            case XCB_CLIENT_MESSAGE: {
+                xcb_client_message_event_t * t_cme = ( xcb_client_message_event_t * )t_event;
+
+                if( t_cme->data.data32[0] == m_Header.xcb_atom_delete_window )
+                {
+                    m_Run = false;
+                }
+
+                break;
+            }
+            default:
+                /* Unknown event type, ignore it */
+                LOG.info ("Unknown event: {0}", t_event->response_type);
+                break;
+            }
+            free ( t_event );
+        }
+
         return false;
     }
 
@@ -281,102 +370,15 @@ namespace ROOT_NAMESPACE
         
         while ( m_Run )
         {
-            t_event = ::xcb_poll_for_event( m_Header.xcb_connection );
-
-            if( t_event )
+            if( processEvent() )
             {
-                switch ( t_event->response_type & ~0x80 ) {
-                case XCB_EXPOSE: {
-                    xcb_expose_event_t *expose = (xcb_expose_event_t *)t_event;
-
-                    m_Size = glm::ivec2( expose->width, expose->height );
-
-                    LOG.info ("Window {0} exposed. Region to be redrawn at location ({1}, {2}), with dimension ({3}, {4})",
-                            expose->window, expose->x, expose->y, expose->width, expose->height );
-                    break;
-                }
-                case XCB_BUTTON_PRESS: {
-                    xcb_button_press_event_t *t_bp = (xcb_button_press_event_t *)t_event;
-                    // print_modifiers (t_bp->state);
-
-                    LOG.info ( "Button {0} pressed in window {1}, at coordinates ({2}, {3})",
-                                t_bp->detail, t_bp->event, t_bp->event_x, t_bp->event_y );
-
-                    m_Input.mouseInput[ t_bp->detail ] = true;
-                    m_Input.mouseInputX[ t_bp->detail ] = t_bp->event_x;
-                    m_Input.mouseInputY[ t_bp->detail ] = t_bp->event_y;
-                    break;
-                }
-                case XCB_BUTTON_RELEASE: {
-                    xcb_button_release_event_t * t_br = (xcb_button_release_event_t *)t_event;
-                    print_modifiers(t_br->state);
-
-                    LOG.info ( "Button {0} released in window {1}, at coordinates ({2}, {3})",
-                            t_br->detail, t_br->event, t_br->event_x, t_br->event_y );
-                    break;
-                }
-                case XCB_MOTION_NOTIFY: {
-                    xcb_motion_notify_event_t * t_motion = (xcb_motion_notify_event_t *)t_event;
-
-                    m_CursorPosition = glm::ivec2( t_motion->event_x, t_motion->event_y );
-                    // LOG.info ( "Mouse moved in window {0}, at coordinates ({1}, {2})",
-                    //         t_motion->event, t_motion->event_x, t_motion->event_y );
-                    break;
-                }
-                case XCB_ENTER_NOTIFY: {
-                    xcb_enter_notify_event_t * t_enter = (xcb_enter_notify_event_t *)t_event;
-
-                    // LOG.info ("Mouse entered window {0}, at coordinates ({1}, {2})",
-                    //         t_enter->event, t_enter->event_x, t_enter->event_y );
-                    break;
-                }
-                case XCB_LEAVE_NOTIFY: {
-                    xcb_leave_notify_event_t * t_leave = (xcb_leave_notify_event_t *)t_event;
-
-                    // LOG.info ("Mouse left window {0}, at coordinates ({1}, {2})",
-                    //         t_leave->event, t_leave->event_x, t_leave->event_y );
-                    break;
-                }
-                case XCB_KEY_PRESS: {
-                    xcb_key_press_event_t * t_kp = (xcb_key_press_event_t *)t_event;
-
-                    m_Input.keyInput[t_kp->detail] = true;
-
-                    LOG.info ("Key:({0}) pressed in window {1}", (int)t_kp->detail, t_kp->event);
-                    break;
-                }
-                case XCB_KEY_RELEASE: {
-                    xcb_key_release_event_t * t_kr = (xcb_key_release_event_t *)t_event;
-                    print_modifiers( t_kr->state );
-
-                    // LOG.info ("Key released in window {0}", t_kr->event);
-                    break;
-                }
-                case XCB_CLIENT_MESSAGE: {
-                    xcb_client_message_event_t * t_cme = ( xcb_client_message_event_t * )t_event;
-
-                    if( t_cme->data.data32[0] == m_Header.xcb_atom_delete_window )
-                    {
-                        m_Run = false;
-                    }
-
-                    break;
-                }
-                default:
-                    /* Unknown event type, ignore it */
-                    LOG.info ("Unknown event: {0}", t_event->response_type);
-                    break;
-                }
+                break;
             }
-
-            free ( t_event );
-
-            if( !m_Run ) return false;
 
             if( m_Input.keyInput[KEY_ESCAPE] )
             {
                 m_Run = false;
-                return false;
+                break;
             }
 
             if( m_Input.keyInput[KEY_N] )
