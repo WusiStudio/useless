@@ -132,7 +132,7 @@ namespace ROOT_NAMESPACE
             t_dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
             // 尝试设置显示模式并返回结果。注: CDS_FULLSCREEN 移去了状态条。
 
-            if ( ChangeDisplaySettingsExA ( NULL, &t_dmScreenSettings, NULL, CDS_FULLSCREEN, NULL ) != DISP_CHANGE_SUCCESSFUL )
+            if ( ChangeDisplaySettingsExA ( NULL, (DEVMODEA *)&t_dmScreenSettings, NULL, CDS_FULLSCREEN, NULL ) != DISP_CHANGE_SUCCESSFUL )
             {
                 LOG.warning ( "try fullscene is faild" );
                 m_FullScreenState = false;
@@ -187,8 +187,8 @@ namespace ROOT_NAMESPACE
         RECT        t_WindowRect;                   // 取得矩形的左上角和右下角的坐标值
         const LPCSTR t_displayDevice = NULL;
         WNDCLASS t_wc;
-        t_wc.lpszClassName = "window";                                  //注册类名  
-        t_wc.lpfnWndProc = (WNDPROC)windowHeader::window_proc;          //窗口过程  
+        t_wc.lpszClassName = (LPCSTR)"window";                                  //注册类名  
+        t_wc.lpfnWndProc = (WNDPROC)windowStruct::window_proc;          //窗口过程  
         t_wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;                //窗口风格  
         t_wc.hInstance = m_Header.hInstance;                             //应用程序实例  
         t_wc.hIcon = LoadIcon(0,IDI_WINLOGO);                           //应用程序图标  
@@ -219,7 +219,7 @@ namespace ROOT_NAMESPACE
             t_dmScreenSettings.dmDisplayFrequency = 120;
             t_dmScreenSettings.dmFields = DM_DISPLAYFLAGS | DM_DISPLAYFREQUENCY;
 
-            if( ChangeDisplaySettingsExA( t_displayDevice, &t_dmScreenSettings, NULL, NULL, NULL ) != DISP_CHANGE_SUCCESSFUL )
+            if( ChangeDisplaySettingsExA( t_displayDevice, (DEVMODEA*)&t_dmScreenSettings, NULL, NULL, NULL ) != DISP_CHANGE_SUCCESSFUL )
             {
                 LOG.warning( "try change display frequency is faild!" );
             }
@@ -235,7 +235,7 @@ namespace ROOT_NAMESPACE
             t_dmScreenSettings.dmBitsPerPel   = 32;                         // 每象素所选的色彩深度
             t_dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
             // 尝试设置显示模式并返回结果。注: CDS_FULLSCREEN 移去了状态条。
-            if ( ChangeDisplaySettingsExA( t_displayDevice, &t_dmScreenSettings, NULL, CDS_FULLSCREEN, NULL ) != DISP_CHANGE_SUCCESSFUL )
+            if ( ChangeDisplaySettingsExA( t_displayDevice, (DEVMODEA *)&t_dmScreenSettings, NULL, CDS_FULLSCREEN, NULL ) != DISP_CHANGE_SUCCESSFUL )
             {
                 LOG.warning( "try fullscene is faild" );
                 m_FullScreenState = false;
@@ -282,8 +282,8 @@ namespace ROOT_NAMESPACE
 
         m_Header.hWnd = CreateWindowEx(
         t_dwExStyle,                                                        //扩展窗体风格
-        "window" ,                                                          //类名，要和刚才注册的一致  
-        p_title.c_str() ,                                                   //窗口标题文字  
+        (LPCSTR)"window" ,                                                          //类名，要和刚才注册的一致  
+        (LPCSTR)p_title.c_str() ,                                                   //窗口标题文字  
         WS_CLIPSIBLINGS | WS_CLIPCHILDREN | t_dwStyle,                      //窗口外观样式  
         t_WindowRect.left,                                                  //窗口相对于父级的X坐标  
         t_WindowRect.top,                                                   //窗口相对于父级的Y坐标  
@@ -300,7 +300,7 @@ namespace ROOT_NAMESPACE
             return true;
         }
 
-        windowHeader::ms_windowList[m_Header.hWnd] = (object *)this;
+        windowStruct::ms_windowList[m_Header.hWnd] = (object *)this;
 
         SetWindowLongPtrA( m_Header.hWnd, GWLP_USERDATA, (LONG_PTR) &m_Header );
         m_Header.hDC = GetDC( m_Header.hWnd );
@@ -432,10 +432,10 @@ namespace ROOT_NAMESPACE
         if ( m_Header.hWnd )
         {
 
-            std::map< HWND, object * >::iterator t_findRes = windowHeader::ms_windowList.find( m_Header.hWnd );
+            std::map< HWND, object * >::iterator t_findRes = windowStruct::ms_windowList.find( m_Header.hWnd );
 
-            if( t_findRes != windowHeader::ms_windowList.end() && t_findRes->second == this ){
-                windowHeader::ms_windowList.erase( t_findRes );
+            if( t_findRes != windowStruct::ms_windowList.end() && t_findRes->second == this ){
+                windowStruct::ms_windowList.erase( t_findRes );
             }
 
             if ( !DestroyWindow( m_Header.hWnd ) )
@@ -457,9 +457,9 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
-    std::map< HWND, object * > windowHeader::ms_windowList;
+    std::map< HWND, object * > windowStruct::ms_windowList;
 
-    object * windowHeader::findWindow( HWND p_hWnd )
+    object * windowStruct::findWindow( HWND p_hWnd )
     {
         std::map< HWND, object * >::iterator t_result = ms_windowList.find( p_hWnd );
         if( t_result == ms_windowList.end() )
@@ -470,9 +470,9 @@ namespace ROOT_NAMESPACE
         return t_result->second;
     }
 
-    LRESULT CALLBACK windowHeader::window_proc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
+    LRESULT CALLBACK windowStruct::window_proc(HWND p_hWnd, UINT p_msg, WPARAM p_wParam, LPARAM p_lParam)
     {
-        window * t_window = (window *)windowHeader::findWindow( p_hWnd );
+        window * t_window = (window *)windowStruct::findWindow( p_hWnd );
 
         if ( t_window == NULL )
         {

@@ -8,7 +8,7 @@
 #include <map>
 #include <functional>
 
-#include "windowHeader.h"
+#include "windowStruct.h"
 #include "xgraphical.h"
 
 namespace ROOT_NAMESPACE
@@ -27,7 +27,7 @@ namespace ROOT_NAMESPACE
         EVENT( std::function< void( const float p_tm ) >, Tick );
 
 #ifdef OS_WINDOWS
-        friend LRESULT CALLBACK windowHeader::window_proc(HWND p_hWnd,UINT p_msg,WPARAM p_wParam,LPARAM p_lParam);
+        friend LRESULT CALLBACK windowStruct::window_proc(HWND p_hWnd,UINT p_msg,WPARAM p_wParam,LPARAM p_lParam);
 #endif
     public:
 
@@ -67,7 +67,7 @@ namespace ROOT_NAMESPACE
 
         glm::ivec2 m_fullscreenAfterSize;
 
-        windowHeader m_Header;
+        windowStruct m_Header;
         windowInput m_Input;
         xgraphical * m_Xgraphical;
     };

@@ -5,11 +5,11 @@
 namespace ROOT_NAMESPACE
 {
 
-    xgraphical & xgraphical::Create ( windowHeader & p_windowHeader )
+    xgraphical & xgraphical::Create ( windowStruct & p_windowStruct )
     {
         xgraphical * t_result = &Create ();
 
-        if (t_result->init ( p_windowHeader ))
+        if (t_result->init ( p_windowStruct ))
         {
             t_result->destroy ();
             t_result = nullptr;
@@ -29,7 +29,7 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
-    bool xgraphical::init ( windowHeader & p_windowHeader )
+    bool xgraphical::init ( windowStruct & p_windowStruct )
     {
         static PIXELFORMATDESCRIPTOR s_pfd =
         {
@@ -52,11 +52,11 @@ namespace ROOT_NAMESPACE
         };
 
 
-        int t_PixelFormat = ChoosePixelFormat ( p_windowHeader.hDC, &s_pfd );
+        int t_PixelFormat = ChoosePixelFormat ( p_windowStruct.hDC, &s_pfd );
 
-        SetPixelFormat ( p_windowHeader.hDC, t_PixelFormat, &s_pfd );
+        SetPixelFormat ( p_windowStruct.hDC, t_PixelFormat, &s_pfd );
 
-        p_windowHeader.hRC = wglCreateContext ( p_windowHeader.hDC );
+        p_windowStruct.hRC = wglCreateContext ( p_windowStruct.hDC );
 
         return false;
     }
@@ -68,9 +68,9 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
-    bool xgraphical::renderStart ( windowHeader & p_windowHeader )
+    bool xgraphical::renderStart ( windowStruct & p_windowStruct )
     {
-        wglMakeCurrent ( p_windowHeader.hDC, p_windowHeader.hRC );
+        wglMakeCurrent ( p_windowStruct.hDC, p_windowStruct.hRC );
 
         glClearColor ( 0.0f, 0.0f, 0.0f, 1.0f );
 
@@ -78,12 +78,11 @@ namespace ROOT_NAMESPACE
 
         return false;
     }
-    bool xgraphical::renderEnd ( windowHeader & p_windowHeader )
+    bool xgraphical::renderEnd ( windowStruct & p_windowStruct )
     {
-#ifdef OS_WINDOWS
-        SwapBuffers ( p_windowHeader.hDC );
+        SwapBuffers ( p_windowStruct.hDC );
         wglMakeCurrent ( NULL, NULL );
-#endif
+        
         return false;
     }
 

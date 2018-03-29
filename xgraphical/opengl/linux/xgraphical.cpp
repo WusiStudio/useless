@@ -8,11 +8,11 @@
 
 namespace ROOT_NAMESPACE
 {
-    xgraphical & xgraphical::Create ( windowHeader & p_windowHeader )
+    xgraphical & xgraphical::Create ( windowStruct & p_windowStruct )
     {
         xgraphical * t_result = &Create ();
 
-        if (t_result->init ( p_windowHeader ))
+        if (t_result->init ( p_windowStruct ))
         {
             t_result->destroy ();
             t_result = nullptr;
@@ -34,11 +34,11 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
-    bool xgraphical::init ( windowHeader & p_windowHeader )
+    bool xgraphical::init ( windowStruct & p_windowStruct )
     {
-        m_display = p_windowHeader.x_display;
+        m_display = p_windowStruct.x_display;
 
-        m_context = ::glXCreateNewContext( p_windowHeader.x_display, p_windowHeader.x_fb_config, GLX_RGBA_TYPE, 0, true);
+        m_context = ::glXCreateNewContext( p_windowStruct.x_display, p_windowStruct.x_fb_config, GLX_RGBA_TYPE, 0, true);
         if( !m_context )
         {
             LOG.error( "glXCreateNewContext failed" );
@@ -47,12 +47,12 @@ namespace ROOT_NAMESPACE
 
         /* Create GLX Window */
 
-        GLXWindow t_glxwindow = glXCreateWindow( p_windowHeader.x_display, p_windowHeader.x_fb_config, p_windowHeader.xcb_window, 0 );
+        GLXWindow t_glxwindow = glXCreateWindow( p_windowStruct.x_display, p_windowStruct.x_fb_config, p_windowStruct.xcb_window, 0 );
 
         m_drawable = t_glxwindow;
 
         /* make OpenGL context current */
-        if(!glXMakeContextCurrent( p_windowHeader.x_display, m_drawable, m_drawable, m_context))
+        if(!glXMakeContextCurrent( p_windowStruct.x_display, m_drawable, m_drawable, m_context))
         {
             LOG.error( "glXMakeContextCurrent failed" );
             return true;
@@ -77,7 +77,7 @@ namespace ROOT_NAMESPACE
         return false;
     }
 
-    bool xgraphical::renderStart ( windowHeader & p_windowHeader )
+    bool xgraphical::renderStart ( windowStruct & p_windowStruct )
     {
 
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -85,9 +85,9 @@ namespace ROOT_NAMESPACE
 
         return false;
     }
-    bool xgraphical::renderEnd ( windowHeader & p_windowHeader )
+    bool xgraphical::renderEnd ( windowStruct & p_windowStruct )
     {
-        glXSwapBuffers( p_windowHeader.x_display, m_drawable);
+        glXSwapBuffers( p_windowStruct.x_display, m_drawable);
         return false;
     }
 
